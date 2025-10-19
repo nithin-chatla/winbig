@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - WinBig</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5; --primary-hover: #4338ca; --secondary-bg: #f8fafc;
+            --border-color: #e2e8f0; --text-dark: #1e293b; --text-light: #64748b;
+            --danger-color: #ef4444; --danger-hover: #dc2626; --success-color: #22c55e;
+            --success-hover: #16a34a; --warning-color: #f59e0b; --warning-hover: #d97706;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--secondary-bg); color: var(--text-dark); margin: 0; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color); }
+        nav .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
+        main { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        .container { background-color: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin-bottom: 2rem; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        h2 { color: var(--text-dark); text-align: center; margin-top: 0; }
+        input, button { font-family: 'Inter', sans-serif; font-size: 1rem; }
+        input { padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; }
+        button { padding: 0.75rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.9rem; margin: 0 0.2rem; }
+        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-warning:hover { background-color: var(--warning-hover); }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: var(--danger-hover); }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-success:hover { background-color: var(--success-hover); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .stat-card { text-align: center; }
+        .stat-card .value { font-size: 2.5rem; font-weight: 700; color: var(--primary-color); }
+        .stat-card .label { font-size: 1rem; font-weight: 500; color: var(--text-light); }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .centered-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        #admin-panel-view { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .search-input { width: 100%; box-sizing: border-box; margin-bottom: 1rem; }
+        .payment-input { width: 80px; text-align: right; margin-right: 0.5rem; }
+        .status-badge { padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+        .status-active { background-color: #dcfce7; color: #166534; }
+        .status-inactive { background-color: #fee2e2; color: #991b1b; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 2rem; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px; position: relative; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .message { display:none; padding: 1rem; text-align: center; border-radius: 6px; margin-top: 1rem;}
+        .error { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="centered-container">
+        <div class="container" style="max-width: 400px;">
+            <h2>Admin Login</h2>
+            <form id="login-form">
+                <input type="text" id="admin-username" placeholder="Username" required style="margin-bottom: 1rem;">
+                <input type="password" id="admin-password" placeholder="Password" required style="margin-bottom: 1rem;">
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <div id="login-message" class="message"></div>
+        </div>
+    </div>
+
+    <div id="admin-panel-view">
+        <nav>
+            <div class="logo">WinBig ADMIN</div>
+            <div>
+                <a href="./index.html" target="_blank">Public Site</a>
+                <a href="./agent.html" target="_blank" style="margin: 0 1rem;">Agent Panel</a>
+                <button id="logout-btn" style="background:none; border:none; color: var(--text-light); cursor:pointer;">Logout</button>
+            </div>
+        </nav>
+        
+        <main>
+            <div class="container stats-grid">
+                 <div class="stat-card"><div id="total-revenue" class="value"><div class="loader"></div></div><div class="label">Total Revenue</div></div>
+                 <div class="stat-card"><div id="adjusted-profit" class="value"><div class="loader"></div></div><div class="label">Adjusted Profit</div></div>
+                 <div class="stat-card"><div id="balance-due" class="value"><div class="loader"></div></div><div class="label">Balance Due From Agents</div></div>
+                 <div class="stat-card"><div id="total-tickets" class="value"><div class="loader"></div></div><div class="label">Tickets Sold</div></div>
+            </div>
+
+            <div class="grid-container">
+                 <div class="container">
+                    <h2>Record a Withdrawal</h2>
+                    <form id="withdrawal-form">
+                        <input type="number" id="withdrawal-amount" placeholder="Amount (₹)" required style="margin-bottom: 1rem;">
+                        <input type="text" id="withdrawal-desc" placeholder="Description (e.g., Marketing, Personal)" required style="margin-bottom: 1rem;">
+                        <button type="submit" class="btn-primary">Record Withdrawal</button>
+                    </form>
+                </div>
+                <div class="container">
+                    <h2>Withdrawal History</h2>
+                    <div id="withdrawal-history-list"><div class="loader"></div></div>
+                </div>
+            </div>
+             <div class="grid-container">
+                 <div class="container">
+                    <h2>Add Revenue Adjustment</h2>
+                    <form id="adjustment-form">
+                        <input type="number" id="adjustment-amount" placeholder="Amount (₹) - use negative for deduction" required style="margin-bottom: 1rem;">
+                        <input type="text" id="adjustment-desc" placeholder="Description (e.g., Miscellaneous Income)" required style="margin-bottom: 1rem;">
+                        <button type="submit" class="btn-primary">Add Adjustment</button>
+                    </form>
+                </div>
+                <div class="container">
+                    <h2>Adjustment History</h2>
+                    <div id="adjustment-history-list"><div class="loader"></div></div>
+                </div>
+            </div>
+
+            <div class="container">
+                <h2>Manage Lotteries</h2>
+                <div id="manage-lotteries-list"><div class="loader"></div></div>
+            </div>
+            <div class="container">
+                <h2>Manage Agents</h2>
+                <div id="manage-agents-list"><div class="loader"></div></div>
+            </div>
+            <div class="container">
+                <h2>Agent Performance</h2>
+                <input type="text" id="agent-search-input" class="search-input" placeholder="Search by agent name or phone...">
+                <div id="agent-performance-list"><div class="loader"></div></div>
+            </div>
+            <div class="container">
+                <h2>All Participants</h2>
+                <input type="text" id="participant-search-input" class="search-input" placeholder="Search by customer, agent, phone, or serial #...">
+                <div id="all-participants-list"><div class="loader"></div></div>
+            </div>
+            <div class="grid-container">
+                <div class="container">
+                    <h2>Create New Lottery</h2>
+                    <form id="create-lottery-form">
+                        <input type="text" id="prize-name" placeholder="Prize Name" required style="margin-bottom: 1rem;">
+                        <input type="number" id="ticket-price" placeholder="Ticket Price (₹)" required style="margin-bottom: 1rem;">
+                        <input type="date" id="draw-date" required style="margin-bottom: 1rem;">
+                        <button type="submit" class="btn-primary">Create Lottery</button>
+                    </form>
+                </div>
+                <div class="container">
+                    <h2>Create New Agent</h2>
+                    <form id="create-agent-form">
+                        <input type="text" id="agent-name" placeholder="Agent Full Name" required style="margin-bottom: 1rem;">
+                        <input type="tel" id="agent-phone" placeholder="Agent Phone Number" required style="margin-bottom: 1rem;">
+                        <input type="password" id="agent-password" placeholder="Create a secure password" required style="margin-bottom: 1rem;">
+                        <button type="submit" class="btn-primary">Create Agent</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="edit-lottery-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-lottery-modal">&times;</span> <h2>Edit Lottery</h2> <form id="edit-lottery-form"> <input type="hidden" id="edit-lottery-id"> <input type="text" id="edit-prize-name" required style="margin-bottom: 1rem;"> <input type="number" id="edit-ticket-price" required style="margin-bottom: 1rem;"> <input type="date" id="edit-draw-date" required style="margin-bottom: 1rem;"> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
+    <div id="edit-agent-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-agent-modal">&times;</span> <h2>Edit Agent</h2> <form id="edit-agent-form"> <input type="hidden" id="edit-agent-id"> <input type="text" id="edit-agent-name" required style="margin-bottom: 1rem;"> <input type="tel" id="edit-agent-phone" required style="margin-bottom: 1rem;"> <input type="text" id="edit-agent-password" placeholder="New password (optional)" style="margin-bottom: 1rem;"> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
+    <div id="view-participants-modal" class="modal"> <div class="modal-content"> <span class="close-btn" data-modal="view-participants-modal">&times;</span> <h2 id="participants-modal-title">Participants</h2> <input type="text" id="participants-modal-search" class="search-input" placeholder="Search participants..."> <div id="participants-modal-list"></div> </div> </div>
+    <div id="edit-withdrawal-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-withdrawal-modal">&times;</span> <h2>Edit Withdrawal</h2> <form id="edit-withdrawal-form"> <input type="hidden" id="edit-withdrawal-id"> <input type="number" id="edit-withdrawal-amount" required style="margin-bottom: 1rem;"> <input type="text" id="edit-withdrawal-desc" required style="margin-bottom: 1rem;"> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
+    <div id="edit-adjustment-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-adjustment-modal">&times;</span> <h2>Edit Adjustment</h2> <form id="edit-adjustment-form"> <input type="hidden" id="edit-adjustment-id"> <input type="number" id="edit-adjustment-amount" required style="margin-bottom: 1rem;"> <input type="text" id="edit-adjustment-desc" required style="margin-bottom: 1rem;"> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCP7extT3aBFU8Pzo95_zbmKviMGVRQt9E",
+            authDomain: "winbig-83d30.firebaseapp.com",
+            projectId: "winbig-83d30",
+            storageBucket: "winbig-83d30.appspot.com",
+            messagingSenderId: "752719565889",
+            appId: "1:752719565889:web:9ff8c0768d9a01146ee2c0",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        const loginView = document.getElementById('login-view');
+        const adminPanelView = document.getElementById('admin-panel-view');
+        const agentSearchInput = document.getElementById('agent-search-input');
+        const participantSearchInput = document.getElementById('participant-search-input');
+        const participantsModalSearch = document.getElementById('participants-modal-search');
+
+        let allAgents = new Map();
+        let allLotteries = new Map();
+        let allTickets = [];
+        let allWithdrawals = [];
+        let allAdjustments = [];
+        let agentPerformanceData = {};
+        let lotteryPerformanceData = {};
+        let currentLotteryParticipants = [];
+        
+        async function fetchAllDataAndRender() {
+            ['#manage-lotteries-list', '#manage-agents-list', '#agent-performance-list', '#all-participants-list', '#withdrawal-history-list', '#adjustment-history-list'].forEach(sel => {
+                const el = document.querySelector(sel);
+                if (el) el.innerHTML = '<div class="loader"></div>';
+            });
+
+            try {
+                const [agentsSnapshot, lotteriesSnapshot, ticketsSnapshot, withdrawalsSnapshot, adjustmentsSnapshot] = await Promise.all([
+                    getDocs(collection(db, "agents")), getDocs(collection(db, "lotteries")), getDocs(collection(db, "tickets")), getDocs(collection(db, "withdrawals")), getDocs(collection(db, "adjustments"))
+                ]);
+
+                allAgents = new Map(agentsSnapshot.docs.map(doc => [doc.id, { id: doc.id, ...doc.data() }]));
+                allLotteries = new Map(lotteriesSnapshot.docs.map(doc => [doc.id, { id: doc.id, ...doc.data() }]));
+                allTickets = ticketsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allWithdrawals = withdrawalsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allAdjustments = adjustmentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                calculatePerformance();
+                renderManageLotteries();
+                renderManageAgents();
+                renderAgentPerformance();
+                renderAllParticipants();
+                renderWithdrawalHistory();
+                renderAdjustmentHistory();
+                updateStats();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                alert("Could not fetch data from the database. Please check your connection and Firebase setup.");
+            }
+        }
+
+        function calculatePerformance() {
+            agentPerformanceData = {};
+            lotteryPerformanceData = {};
+            allAgents.forEach(agent => { agentPerformanceData[agent.id] = { ...agent, ticketsSold: 0, totalRevenue: 0 }; });
+            allLotteries.forEach(lottery => { lotteryPerformanceData[lottery.id] = { ...lottery, ticketsSold: 0, totalRevenue: 0 }; });
+            allTickets.forEach(ticket => {
+                const agentPerf = agentPerformanceData[ticket.agentId];
+                const lotteryPerf = lotteryPerformanceData[ticket.lotteryId];
+                const lottery = allLotteries.get(ticket.lotteryId);
+                if (lottery) {
+                    if (agentPerf) { agentPerf.ticketsSold++; agentPerf.totalRevenue += lottery.ticketPrice; }
+                    if (lotteryPerf) { lotteryPerf.ticketsSold++; lotteryPerf.totalRevenue += lottery.ticketPrice; }
+                }
+            });
+        }
+
+        function renderManageLotteries() {
+            const list = document.getElementById('manage-lotteries-list');
+            list.innerHTML = `<table><thead><tr><th>Prize</th><th>Ticket Price</th><th>Tickets Sold</th><th>Total Collected</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
+            const tbody = list.querySelector('tbody');
+            Object.values(lotteryPerformanceData).forEach(perf => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${perf.prizeName}</strong></td>
+                    <td>₹${perf.ticketPrice.toLocaleString()}</td>
+                    <td>${perf.ticketsSold}</td>
+                    <td><strong>₹${perf.totalRevenue.toLocaleString()}</strong></td>
+                    <td><span class="status-badge ${perf.isActive ? 'status-active' : 'status-inactive'}">${perf.isActive ? 'Active' : 'Inactive'}</span></td>
+                    <td>
+                        <button class="btn-sm btn-success view-participants-btn" data-id="${perf.id}">View Participants</button>
+                        <button class="btn-sm btn-warning edit-lottery-btn" data-id="${perf.id}">Edit</button>
+                        <button class="btn-sm btn-primary toggle-lottery-status-btn" data-id="${perf.id}">${perf.isActive ? 'Deactivate' : 'Activate'}</button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function renderManageAgents() {
+            const list = document.getElementById('manage-agents-list');
+            list.innerHTML = `<table><thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
+            const tbody = list.querySelector('tbody');
+            allAgents.forEach(agent => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${agent.name}</strong></td>
+                    <td>${agent.phone}</td>
+                    <td><span class="status-badge ${agent.isActive ? 'status-active' : 'status-inactive'}">${agent.isActive ? 'Active' : 'Inactive'}</span></td>
+                    <td>
+                        <button class="btn-sm btn-warning edit-agent-btn" data-id="${agent.id}">Edit</button>
+                        <button class="btn-sm btn-primary toggle-agent-status-btn" data-id="${agent.id}">${agent.isActive ? 'Deactivate' : 'Activate'}</button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderAgentPerformance() {
+            const searchTerm = agentSearchInput.value.toLowerCase().trim();
+            const list = document.getElementById('agent-performance-list');
+            const filteredAgents = Object.values(agentPerformanceData).filter(agent => agent.name.toLowerCase().includes(searchTerm) || agent.phone.includes(searchTerm));
+            if (filteredAgents.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No agents found.</p>`;
+                return;
+            }
+            list.innerHTML = `<table><thead><tr><th>Agent Name</th><th>Tickets Sold</th><th>Total Revenue</th><th>Amount Paid</th><th>Balance Due</th><th>Update Payment</th></tr></thead><tbody>${filteredAgents.map(perf => {
+                const rawBalance = perf.totalRevenue - (perf.amountPaid || 0);
+                const balanceCell = rawBalance < 0 ? `<td style="color:var(--success-color)"><strong>₹${Math.abs(rawBalance).toLocaleString()} (Credit)</strong></td>` : `<td><strong>₹${rawBalance.toLocaleString()}</strong></td>`;
+                return `<tr>
+                    <td><strong>${perf.name}</strong><br><small>${perf.phone}</small></td>
+                    <td>${perf.ticketsSold}</td>
+                    <td>₹${perf.totalRevenue.toLocaleString()}</td>
+                    <td>₹${(perf.amountPaid || 0).toLocaleString()}</td>
+                    ${balanceCell}
+                    <td><input type="number" class="payment-input" value="${perf.amountPaid || ''}"><button class="btn-sm btn-primary update-payment-btn" data-agent-id="${perf.id}">Update</button></td>
+                </tr>`;
+            }).join('')}</tbody></table>`;
+        }
+
+        function renderAllParticipants() {
+            const searchTerm = participantSearchInput.value.toLowerCase().trim();
+            const list = document.getElementById('all-participants-list');
+            const filteredTickets = allTickets.filter(ticket => {
+                const agent = allAgents.get(ticket.agentId);
+                const agentName = agent ? agent.name.toLowerCase() : '';
+                return ticket.customerName.toLowerCase().includes(searchTerm) || ticket.customerPhone.includes(searchTerm) || String(ticket.serialNumber).includes(searchTerm) || agentName.includes(searchTerm);
+            });
+            if (filteredTickets.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No participants found.</p>`;
+                return;
+            }
+            list.innerHTML = `<table><thead><tr><th>Serial #</th><th>Customer Name</th><th>Phone</th><th>Agent</th><th>Prize</th><th>Ticket Price</th></tr></thead><tbody>${filteredTickets.map(ticket => {
+                const agent = allAgents.get(ticket.agentId);
+                const lottery = allLotteries.get(ticket.lotteryId);
+                return `<tr>
+                    <td><strong style="color:var(--primary-color)">#${ticket.serialNumber}</strong></td>
+                    <td>${ticket.customerName}</td>
+                    <td>${ticket.customerPhone}</td>
+                    <td>${agent ? agent.name : 'N/A'}</td>
+                    <td>${lottery ? lottery.prizeName : 'N/A'}</td>
+                    <td>₹${lottery ? lottery.ticketPrice.toLocaleString() : 'N/A'}</td>
+                </tr>`;
+            }).join('')}</tbody></table>`;
+        }
+
+        function renderWithdrawalHistory() {
+            const list = document.getElementById('withdrawal-history-list');
+            if(allWithdrawals.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No withdrawals recorded.</p>`;
+                return;
+            }
+            allWithdrawals.sort((a,b) => (b.date?.toDate() || 0) - (a.date?.toDate() || 0));
+            list.innerHTML = `<table><thead><tr><th>Date</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead><tbody>${allWithdrawals.map(w => `
+                <tr><td>${w.date ? w.date.toDate().toLocaleDateString() : 'N/A'}</td><td><strong>₹${w.amount.toLocaleString()}</strong></td><td>${w.description}</td>
+                <td><button class="btn-sm btn-warning edit-withdrawal-btn" data-id="${w.id}">Edit</button><button class="btn-sm btn-danger delete-withdrawal-btn" data-id="${w.id}">Delete</button></td></tr>`).join('')}</tbody></table>`;
+        }
+        
+        function renderAdjustmentHistory() {
+            const list = document.getElementById('adjustment-history-list');
+            if(allAdjustments.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No adjustments recorded.</p>`;
+                return;
+            }
+            allAdjustments.sort((a,b) => (b.date?.toDate() || 0) - (a.date?.toDate() || 0));
+            list.innerHTML = `<table><thead><tr><th>Date</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead><tbody>${allAdjustments.map(adj => `
+                <tr><td>${adj.date ? adj.date.toDate().toLocaleDateString() : 'N/A'}</td><td><strong style="color:${adj.amount >= 0 ? 'var(--success-color)' : 'var(--danger-color)'}">₹${adj.amount.toLocaleString()}</strong></td><td>${adj.description}</td>
+                <td><button class="btn-sm btn-warning edit-adjustment-btn" data-id="${adj.id}">Edit</button><button class="btn-sm btn-danger delete-adjustment-btn" data-id="${adj.id}">Delete</button></td></tr>`).join('')}</tbody></table>`;
+        }
+
+        function updateStats() {
+            const totalRevenue = allTickets.reduce((sum, ticket) => sum + (allLotteries.get(ticket.lotteryId)?.ticketPrice || 0), 0);
+            let totalBalanceDue = 0;
+            Object.values(agentPerformanceData).forEach(perf => {
+                const balance = perf.totalRevenue - (perf.amountPaid || 0);
+                if (balance > 0) { totalBalanceDue += balance; }
+            });
+            const totalWithdrawals = allWithdrawals.reduce((sum, w) => sum + w.amount, 0);
+            const totalAdjustments = allAdjustments.reduce((sum, adj) => sum + adj.amount, 0);
+            const adjustedProfit = totalRevenue + totalAdjustments - totalWithdrawals;
+            
+            document.getElementById('total-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+            document.getElementById('adjusted-profit').textContent = `₹${adjustedProfit.toLocaleString()}`;
+            document.getElementById('balance-due').textContent = `₹${totalBalanceDue.toLocaleString()}`;
+            document.getElementById('total-tickets').textContent = allTickets.length;
+        }
+
+        function openEditLotteryModal(id) {
+            const lottery = allLotteries.get(id);
+            document.getElementById('edit-lottery-id').value = id;
+            document.getElementById('edit-prize-name').value = lottery.prizeName;
+            document.getElementById('edit-ticket-price').value = lottery.ticketPrice;
+            document.getElementById('edit-draw-date').value = lottery.drawDate;
+            document.getElementById('edit-lottery-modal').style.display = 'block';
+        }
+
+        function openEditAgentModal(id) {
+            const agent = allAgents.get(id);
+            document.getElementById('edit-agent-id').value = id;
+            document.getElementById('edit-agent-name').value = agent.name;
+            document.getElementById('edit-agent-phone').value = agent.phone;
+            document.getElementById('edit-agent-password').value = '';
+            document.getElementById('edit-agent-modal').style.display = 'block';
+        }
+
+        function openParticipantsModal(lotteryId) {
+            const lottery = allLotteries.get(lotteryId);
+            document.getElementById('participants-modal-title').textContent = `Participants for: ${lottery.prizeName}`;
+            currentLotteryParticipants = allTickets.filter(ticket => ticket.lotteryId === lotteryId);
+            participantsModalSearch.value = '';
+            renderParticipantsInModal();
+            document.getElementById('view-participants-modal').style.display = 'block';
+        }
+
+        function renderParticipantsInModal() {
+            const list = document.getElementById('participants-modal-list');
+            const searchTerm = participantsModalSearch.value.toLowerCase().trim();
+            const filtered = currentLotteryParticipants.filter(ticket => {
+                 const agent = allAgents.get(ticket.agentId);
+                 const agentName = agent ? agent.name.toLowerCase() : '';
+                 return ticket.customerName.toLowerCase().includes(searchTerm) || ticket.customerPhone.includes(searchTerm) || String(ticket.serialNumber).includes(searchTerm) || agentName.includes(searchTerm);
+            });
+            if(filtered.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No participants found.</p>`;
+                return;
+            }
+            list.innerHTML = `<table><thead><tr><th>Serial #</th><th>Customer Name</th><th>Phone</th><th>Agent</th></tr></thead><tbody>${filtered.map(ticket => {
+                const agent = allAgents.get(ticket.agentId);
+                return `<tr><td><strong>#${ticket.serialNumber}</strong></td><td>${ticket.customerName}</td><td>${ticket.customerPhone}</td><td>${agent ? agent.name : 'N/A'}</td></tr>`
+            }).join('')}</tbody></table>`;
+        }
+
+         function openEditWithdrawalModal(id) {
+            const withdrawal = allWithdrawals.find(w => w.id === id);
+            document.getElementById('edit-withdrawal-id').value = id;
+            document.getElementById('edit-withdrawal-amount').value = withdrawal.amount;
+            document.getElementById('edit-withdrawal-desc').value = withdrawal.description;
+            document.getElementById('edit-withdrawal-modal').style.display = 'block';
+        }
+        
+        function openEditAdjustmentModal(id) {
+            const adj = allAdjustments.find(a => a.id === id);
+            document.getElementById('edit-adjustment-id').value = id;
+            document.getElementById('edit-adjustment-amount').value = adj.amount;
+            document.getElementById('edit-adjustment-desc').value = adj.description;
+            document.getElementById('edit-adjustment-modal').style.display = 'block';
+        }
+
+        document.addEventListener('click', async (e) => {
+            if (e.target.matches('.edit-lottery-btn')) openEditLotteryModal(e.target.dataset.id);
+            if (e.target.matches('.edit-agent-btn')) openEditAgentModal(e.target.dataset.id);
+            if (e.target.matches('.view-participants-btn')) openParticipantsModal(e.target.dataset.id);
+            if (e.target.matches('.edit-withdrawal-btn')) openEditWithdrawalModal(e.target.dataset.id);
+            if (e.target.matches('.edit-adjustment-btn')) openEditAdjustmentModal(e.target.dataset.id);
+            
+            if (e.target.matches('.delete-withdrawal-btn')) {
+                if (confirm('Are you sure?')) { await deleteDoc(doc(db, "withdrawals", e.target.dataset.id)); fetchAllDataAndRender(); }
+            }
+            if (e.target.matches('.delete-adjustment-btn')) {
+                if (confirm('Are you sure?')) { await deleteDoc(doc(db, "adjustments", e.target.dataset.id)); fetchAllDataAndRender(); }
+            }
+
+            if (e.target.matches('.toggle-lottery-status-btn')) {
+                const id = e.target.dataset.id;
+                await updateDoc(doc(db, "lotteries", id), { isActive: !allLotteries.get(id).isActive });
+                fetchAllDataAndRender();
+            }
+            if (e.target.matches('.toggle-agent-status-btn')) {
+                const id = e.target.dataset.id;
+                await updateDoc(doc(db, "agents", id), { isActive: !allAgents.get(id).isActive });
+                fetchAllDataAndRender();
+            }
+            if (e.target.matches('.update-payment-btn')) {
+                const agentId = e.target.dataset.agentId;
+                const input = e.target.previousElementSibling;
+                const amount = Number(input.value);
+                if (isNaN(amount) || amount < 0) { return; }
+                e.target.textContent = '...';
+                e.target.disabled = true;
+                await updateDoc(doc(db, "agents", agentId), { amountPaid: amount });
+                fetchAllDataAndRender();
+            }
+            if (e.target.matches('.close-btn')) {
+                document.getElementById(e.target.dataset.modal).style.display = 'none';
+            }
+        });
+        
+        document.getElementById('login-form').addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const loginMessage = document.getElementById('login-message');
+            const q = query(collection(db, "admins"), where("username", "==", document.getElementById('admin-username').value), where("password", "==", document.getElementById('admin-password').value));
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) {
+                loginMessage.textContent = 'Invalid admin credentials.';
+                loginMessage.className = 'message error';
+                loginMessage.style.display = 'block';
+            } else {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                loginView.style.display = 'none';
+                adminPanelView.style.display = 'block';
+                fetchAllDataAndRender();
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+             sessionStorage.removeItem('isAdminLoggedIn');
+             window.location.reload();
+        });
+
+        document.getElementById('create-lottery-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "lotteries"), { prizeName: document.getElementById('prize-name').value, ticketPrice: Number(document.getElementById('ticket-price').value), drawDate: document.getElementById('draw-date').value, isActive: true, createdAt: serverTimestamp() });
+            e.target.reset();
+            fetchAllDataAndRender();
+        });
+
+        document.getElementById('create-agent-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "agents"), { name: document.getElementById('agent-name').value, phone: document.getElementById('agent-phone').value, password: document.getElementById('agent-password').value, isActive: true, amountPaid: 0 });
+            e.target.reset();
+            fetchAllDataAndRender();
+        });
+
+        document.getElementById('edit-lottery-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-lottery-id').value;
+            await updateDoc(doc(db, "lotteries", id), { prizeName: document.getElementById('edit-prize-name').value, ticketPrice: Number(document.getElementById('edit-ticket-price').value), drawDate: document.getElementById('edit-draw-date').value });
+            document.getElementById('edit-lottery-modal').style.display = 'none';
+            fetchAllDataAndRender();
+        });
+
+        document.getElementById('edit-agent-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-agent-id').value;
+            const password = document.getElementById('edit-agent-password').value;
+            const dataToUpdate = { name: document.getElementById('edit-agent-name').value, phone: document.getElementById('edit-agent-phone').value };
+            if (password) { dataToUpdate.password = password; }
+            await updateDoc(doc(db, "agents", id), dataToUpdate);
+            document.getElementById('edit-agent-modal').style.display = 'none';
+            fetchAllDataAndRender();
+        });
+        
+        document.getElementById('withdrawal-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "withdrawals"), { amount: Number(document.getElementById('withdrawal-amount').value), description: document.getElementById('withdrawal-desc').value, date: serverTimestamp() });
+            e.target.reset();
+            fetchAllDataAndRender();
+        });
+
+        document.getElementById('adjustment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "adjustments"), { amount: Number(document.getElementById('adjustment-amount').value), description: document.getElementById('adjustment-desc').value, date: serverTimestamp() });
+            e.target.reset();
+            fetchAllDataAndRender();
+        });
+        
+        document.getElementById('edit-withdrawal-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-withdrawal-id').value;
+            await updateDoc(doc(db, "withdrawals", id), { amount: Number(document.getElementById('edit-withdrawal-amount').value), description: document.getElementById('edit-withdrawal-desc').value });
+            document.getElementById('edit-withdrawal-modal').style.display = 'none';
+            fetchAllDataAndRender();
+        });
+
+        document.getElementById('edit-adjustment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-adjustment-id').value;
+            await updateDoc(doc(db, "adjustments", id), { amount: Number(document.getElementById('edit-adjustment-amount').value), description: document.getElementById('edit-adjustment-desc').value });
+            document.getElementById('edit-adjustment-modal').style.display = 'none';
+            fetchAllDataAndRender();
+        });
+
+        agentSearchInput.addEventListener('input', renderAgentPerformance);
+        participantSearchInput.addEventListener('input', renderAllParticipants);
+        participantsModalSearch.addEventListener('input', renderParticipantsInModal);
+        
+        if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
+            loginView.style.display = 'none';
+            adminPanelView.style.display = 'block';
+            fetchAllDataAndRender();
+        }
+    </script>
+</body>
+</html>
+
