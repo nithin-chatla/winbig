@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Panel - WinBig</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf-autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #16a34a; --primary-hover: #15803d; --secondary-bg: #f8fafc;
+            --border-color: #e2e8f0; --text-dark: #1e293b; --text-light: #64748b;
+            --accent-color: #f59e0b;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--secondary-bg); color: var(--text-dark); margin: 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .centered-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; animation: fadeIn 0.5s ease-in-out; }
+        .login-box { width: 100%; max-width: 400px; padding: 2rem; }
+        .container {
+            background-color: #fff; padding: 1.5rem; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
+            animation: slideUp 0.5s ease-out; margin-bottom: 2rem;
+        }
+        h1, h2 { text-align: center; color: var(--text-dark); }
+        form { display: flex; flex-direction: column; gap: 1rem; }
+        label { font-weight: 500; color: var(--text-dark); }
+        input, select { padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); font-size: 1rem; transition: box-shadow 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2); }
+        button { padding: 0.75rem; border-radius: 6px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-accent { background-color: var(--accent-color); color: white; }
+        .btn-accent:hover { background-color: #d97706; }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.9rem; margin: 0 0.2rem; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); animation: fadeIn 0.5s; }
+        nav .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
+        #agent-name-display { font-weight: 500; }
+        .message { text-align: center; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-weight: 500; display: none; animation: fadeIn 0.5s; }
+        .success { background-color: #dcfce7; color: #166534; }
+        .error { background-color: #fee2e2; color: #991b1b; }
+        #panel-view { display: none; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary-color); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem; border: 1px solid var(--border-color);
+            background-color: #fff; border-radius: 6px; margin-bottom: 0.5rem;
+        }
+        .list-item strong { color: var(--primary-color); font-size: 1.2rem; }
+        .list-placeholder { text-align: center; color: var(--text-light); padding: 1rem; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f8fafc; font-weight: 600; }
+        .serial-number { font-weight: 700; color: var(--primary-color); }
+        .filter-controls { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
+        #lottery-filter-select { flex-grow: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="centered-container">
+        <div class="login-box">
+            <div class="container" style="margin-bottom: 0;">
+                <h2>Agent Login</h2>
+                <form id="login-form">
+                    <div><label for="agent-phone">Phone Number</label><input type="tel" id="agent-phone" required></div>
+                    <div><label for="agent-password">Password</label><input type="password" id="agent-password" required></div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+                <div id="login-message" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="panel-view">
+        <nav>
+            <div class="logo">WinBig AGENT</div>
+            <div>Logged in as: <span id="agent-name-display"></span>
+                <button id="logout-btn" style="margin-left: 1rem; background: none; border: none; color: #64748b; cursor: pointer; font-weight: 500;">Logout</button>
+            </div>
+        </nav>
+        <main style="padding: 2rem; max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            
+            <div style="grid-column: 1 / -1;">
+                <div class="container">
+                    <h2>Generate New Ticket</h2>
+                    <form id="generate-ticket-form">
+                        <select id="lottery-select" required><option value="" disabled selected>Loading Lotteries...</option></select>
+                        <input type="text" id="customer-name" placeholder="Customer Name" required>
+                        <input type="tel" id="customer-phone" placeholder="Customer Phone" required>
+                        <button type="submit" class="btn-primary">Generate Ticket</button>
+                    </form>
+                    <div id="ticket-message" class="message"></div>
+                </div>
+            </div>
+
+            <div class="container">
+                <h2>Available Leads</h2>
+                <div id="available-leads-list"><div class="loader"></div></div>
+            </div>
+
+            <div class="container">
+                <h2>My Claimed Leads</h2>
+                <div id="my-claimed-leads-list"><div class="loader"></div></div>
+            </div>
+            
+            <div class="container" style="grid-column: 1 / -1;">
+                <h2>My Registered Participants</h2>
+                <div class="filter-controls">
+                    <select id="lottery-filter-select"><option value="all">All Lotteries</option></select>
+                    <button id="export-pdf-btn" class="btn-sm btn-success">Export PDF</button>
+                </div>
+                <input type="text" id="participant-search-input" placeholder="Search by name, phone, or serial..." style="width: 100%; box-sizing: border-box; margin-bottom: 1rem;">
+                <div id="my-sold-tickets-list"><div class="loader"></div></div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const { jsPDF } = window.jspdf;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCP7extT3aBFU8Pzo95_zbmKviMGVRQt9E",
+            authDomain: "winbig-83d30.firebaseapp.com",
+            projectId: "winbig-83d30",
+            storageBucket: "winbig-83d30.appspot.com",
+            messagingSenderId: "752719565889",
+            appId: "1:752719565889:web:9ff8c0768d9a01146ee2c0",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const loginView = document.getElementById('login-view');
+        const panelView = document.getElementById('panel-view');
+        const loginForm = document.getElementById('login-form');
+        const loginMessage = document.getElementById('login-message');
+        const lotterySelect = document.getElementById('lottery-select');
+        const ticketForm = document.getElementById('generate-ticket-form');
+        const ticketMessage = document.getElementById('ticket-message');
+        const availableLeadsList = document.getElementById('available-leads-list');
+        const myClaimedLeadsList = document.getElementById('my-claimed-leads-list');
+        const mySoldTicketsList = document.getElementById('my-sold-tickets-list');
+        const participantSearchInput = document.getElementById('participant-search-input');
+        const lotteryFilterSelect = document.getElementById('lottery-filter-select');
+
+        let unsubscribes = [];
+        let lotteriesMap = new Map();
+        let mySoldTickets = [];
+        let allTickets = [];
+
+        function showPanelView(agentName) {
+            loginView.style.display = 'none';
+            panelView.style.display = 'block';
+            document.getElementById('agent-name-display').textContent = agentName;
+            setupRealtimeListeners();
+        }
+
+        function setupRealtimeListeners() {
+            unsubscribes.forEach(unsub => unsub());
+            unsubscribes = [];
+
+            const agentId = sessionStorage.getItem('loggedInAgentId');
+
+            unsubscribes.push(onSnapshot(query(collection(db, "lotteries"), where("isActive", "==", true)), snapshot => {
+                lotteriesMap = new Map(snapshot.docs.map(doc => [doc.id, doc.data()]));
+                const currentSelection = lotterySelect.value;
+                lotterySelect.innerHTML = '<option value="" disabled selected>Select a Lottery...</option>';
+                snapshot.forEach(doc => {
+                    const lottery = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${lottery.prizeName} - ₹${lottery.ticketPrice}`;
+                    lotterySelect.appendChild(option);
+                });
+                lotterySelect.value = currentSelection;
+            }));
+
+            unsubscribes.push(onSnapshot(collection(db, "tickets"), snapshot => {
+                allTickets = snapshot.docs.map(doc => doc.data());
+                mySoldTickets = allTickets.filter(ticket => ticket.agentId === agentId);
+                
+                const soldLotteryIds = [...new Set(mySoldTickets.map(t => t.lotteryId))];
+                const currentFilter = lotteryFilterSelect.value;
+                lotteryFilterSelect.innerHTML = '<option value="all">All Lotteries</option>';
+                soldLotteryIds.forEach(id => {
+                    const lottery = lotteriesMap.get(id);
+                    if(lottery) {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = lottery.prizeName;
+                        lotteryFilterSelect.appendChild(option);
+                    }
+                });
+                lotteryFilterSelect.value = currentFilter;
+
+                renderMySoldTickets();
+            }));
+
+            unsubscribes.push(onSnapshot(query(collection(db, "leads"), where("status", "==", "unclaimed")), snapshot => {
+                availableLeadsList.innerHTML = '';
+                if (snapshot.empty) { availableLeadsList.innerHTML = '<p class="list-placeholder">No new leads available.</p>'; return; }
+                snapshot.docs.forEach(doc => {
+                    const lead = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `<div><p style="margin: 0; font-weight: 500;">${lead.customerName}</p><small style="color: var(--text-light);">${lead.selectedPrize}</small></div><button class="btn-accent claim-btn" data-id="${doc.id}">Claim</button>`;
+                    availableLeadsList.appendChild(item);
+                });
+            }));
+
+            unsubscribes.push(onSnapshot(query(collection(db, "leads"), where("status", "==", "claimed"), where("claimedByAgentId", "==", agentId)), snapshot => {
+                myClaimedLeadsList.innerHTML = '';
+                if (snapshot.empty) { myClaimedLeadsList.innerHTML = '<p class="list-placeholder">You have no claimed leads.</p>'; return; }
+                snapshot.docs.forEach(doc => {
+                    const lead = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `<div><p style="margin: 0; font-weight: 500;">${lead.customerName}</p><small style="color: var(--text-light);">${lead.customerPhone} - ${lead.selectedPrize}</small></div>`;
+                    myClaimedLeadsList.appendChild(item);
+                });
+            }));
+        }
+
+        function renderMySoldTickets() {
+            const searchTerm = participantSearchInput.value.toLowerCase().trim();
+            const selectedLotteryId = lotteryFilterSelect.value;
+
+            let ticketsToRender = mySoldTickets;
+
+            if (selectedLotteryId !== 'all') {
+                ticketsToRender = ticketsToRender.filter(ticket => ticket.lotteryId === selectedLotteryId);
+            }
+
+            if (searchTerm) {
+                ticketsToRender = ticketsToRender.filter(ticket => 
+                    ticket.customerName.toLowerCase().includes(searchTerm) ||
+                    ticket.customerPhone.includes(searchTerm) ||
+                    String(ticket.serialNumber).toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (ticketsToRender.length === 0) {
+                mySoldTicketsList.innerHTML = mySoldTickets.length === 0 ? '<p class="list-placeholder">You have not registered any participants yet.</p>' : '<p class="list-placeholder">No participants match your search or filter.</p>';
+                return;
+            }
+            
+            mySoldTicketsList.innerHTML = `<table><thead><tr><th>Serial #</th><th>Customer Name</th><th>Phone</th><th>Prize</th></tr></thead><tbody></tbody></table>`;
+            const tbody = mySoldTicketsList.querySelector('tbody');
+            
+            ticketsToRender.sort((a,b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+
+            ticketsToRender.forEach(ticket => {
+                const lottery = lotteriesMap.get(ticket.lotteryId);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="serial-number">${ticket.serialNumber}</span></td>
+                    <td>${ticket.customerName}</td>
+                    <td>${ticket.customerPhone}</td>
+                    <td>${lottery ? lottery.prizeName : 'N/A'}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('agent-phone').value;
+            const password = document.getElementById('agent-password').value;
+            const q = query(collection(db, "agents"), where("phone", "==", phone), where("password", "==", password));
+            try {
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
+                    loginMessage.textContent = 'Invalid credentials.';
+                    loginMessage.className = 'message error';
+                    loginMessage.style.display = 'block';
+                } else {
+                    const agentDoc = querySnapshot.docs[0];
+                    sessionStorage.setItem('loggedInAgentId', agentDoc.id);
+                    sessionStorage.setItem('loggedInAgentName', agentDoc.data().name);
+                    showPanelView(agentDoc.data().name);
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Could not log in. Check console for details.");
+            }
+        });
+        
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.clear();
+            unsubscribes.forEach(unsub => unsub());
+            window.location.reload();
+        });
+
+        ticketForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Generating...';
+
+            const agentId = sessionStorage.getItem('loggedInAgentId');
+            const selectedLotteryId = lotterySelect.value;
+            if (!agentId || !selectedLotteryId) { 
+                alert("Please select a lottery.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate Ticket';
+                return; 
+            }
+            
+            const lottery = lotteriesMap.get(selectedLotteryId);
+            if (!lottery || !lottery.prefix) {
+                alert("This lottery is missing a serial prefix. Please contact the admin.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate Ticket';
+                return;
+            }
+
+            try {
+                const ticketsForThisLottery = allTickets.filter(t => t.lotteryId === selectedLotteryId);
+                const newTicketNumber = ticketsForThisLottery.length + 1;
+                const newSerialNumber = `${lottery.prefix.toUpperCase()}-${newTicketNumber}`;
+
+                await addDoc(collection(db, "tickets"), {
+                    serialNumber: newSerialNumber,
+                    lotteryId: selectedLotteryId,
+                    customerName: document.getElementById('customer-name').value,
+                    customerPhone: document.getElementById('customer-phone').value,
+                    agentId: agentId, 
+                    createdAt: serverTimestamp()
+                });
+                ticketMessage.innerHTML = `Ticket created! <span class="serial-number">${newSerialNumber}</span>`;
+                ticketMessage.className = 'message success';
+                ticketMessage.style.display = 'block';
+                ticketForm.reset();
+                lotterySelect.value = '';
+            } catch (error) {
+                console.error("Error creating ticket:", error);
+                ticketMessage.textContent = 'Failed to create ticket.';
+                ticketMessage.className = 'message error';
+                ticketMessage.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate Ticket';
+            }
+        });
+        
+        availableLeadsList.addEventListener('click', async (e) => {
+            if(e.target.classList.contains('claim-btn')) {
+                const leadId = e.target.dataset.id;
+                const agentId = sessionStorage.getItem('loggedInAgentId');
+                const agentName = sessionStorage.getItem('loggedInAgentName');
+                
+                if(!agentId || !agentName) { alert('Error: Not logged in.'); return; }
+                
+                e.target.disabled = true;
+                e.target.textContent = '...';
+
+                await updateDoc(doc(db, "leads", leadId), {
+                    status: 'claimed',
+                    claimedByAgentId: agentId,
+                    claimedByAgentName: agentName,
+                    claimedAt: serverTimestamp()
+                });
+            }
+        });
+
+        document.getElementById('export-pdf-btn').addEventListener('click', () => {
+            const table = document.querySelector('#my-sold-tickets-list table');
+            if (!table) {
+                alert("No data to export.");
+                return;
+            }
+            
+            const doc = new jsPDF();
+            const selectedLotteryId = lotteryFilterSelect.value;
+            const lotteryName = selectedLotteryId === 'all' 
+                ? 'All Lotteries' 
+                : lotteriesMap.get(selectedLotteryId)?.prizeName || 'Report';
+            const agentName = sessionStorage.getItem('loggedInAgentName');
+
+            doc.text(`Participant Report for: ${lotteryName}`, 14, 15);
+            doc.text(`Agent: ${agentName}`, 14, 22);
+            doc.autoTable({ html: table, startY: 30 });
+            doc.save(`WinBig_${agentName}_${lotteryName.replace(/\s+/g, '_')}_Report.pdf`);
+        });
+
+        lotteryFilterSelect.addEventListener('change', renderMySoldTickets);
+        participantSearchInput.addEventListener('input', renderMySoldTickets);
+        
+        if (sessionStorage.getItem('loggedInAgentName')) {
+            showPanelView(sessionStorage.getItem('loggedInAgentName'));
+        }
+    </script>
+</body>
+</html>
+
