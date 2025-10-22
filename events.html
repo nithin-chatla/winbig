@@ -27,7 +27,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s, transform 0.8s; transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .reveal.visible { opacity: 1; transform: translateY(0); }
-        
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUpModal { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
@@ -44,17 +43,31 @@
         }
         .close-btn { color: #aaa; position: absolute; top: 1rem; right: 1.5rem; font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.3s, transform 0.3s; }
         .close-btn:hover { color: white; transform: rotate(90deg); }
+        .footer-link {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.875rem;
+        }
+        .footer-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-900 antialiased">
     <header class="bg-gray-900/70 backdrop-blur-md shadow-lg sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="text-2xl font-bold text-white tracking-wider">Win<span class="text-violet-400">Big</span></div>
-            <div class="hidden md:flex items-center space-x-8">
+            <div id="desktop-nav-links" class="hidden md:flex items-center space-x-8">
                 <a href="./index.html" class="text-gray-300 hover:text-violet-400 transition-colors">Home</a>
                 <a href="./events.html" class="text-violet-400 font-semibold">Events</a>
                 <a href="./gallery.html" class="text-gray-300 hover:text-violet-400 transition-colors">Gallery</a>
                 <a href="./past-winners.html" class="text-gray-300 hover:text-violet-400 transition-colors">Past Winners</a>
+                <a href="./about.html" class="text-gray-300 hover:text-violet-400 transition-colors">About Us</a>
+                <a href="./contact.html" class="text-gray-300 hover:text-violet-400 transition-colors">Contact</a>
+                <!-- Custom links will be injected here -->
             </div>
             <div class="md:hidden">
                 <button id="mobile-menu-btn" class="text-white p-2 rounded-md hover:bg-gray-800">
@@ -62,11 +75,14 @@
                 </button>
             </div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden bg-gray-900/90 backdrop-blur-md">
+        <div id="mobile-nav-links" class="hidden md:hidden bg-gray-900/90 backdrop-blur-md">
             <a href="./index.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Home</a>
             <a href="./events.html" class="block py-2 px-6 text-violet-400 font-semibold">Events</a>
             <a href="./gallery.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Gallery</a>
             <a href="./past-winners.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Past Winners</a>
+            <a href="./about.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">About Us</a>
+            <a href="./contact.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Contact</a>
+            <!-- Custom links will be injected here -->
         </div>
     </header>
 
@@ -99,6 +115,10 @@
     
     <footer class="mt-16 border-t border-gray-800">
         <div class="container mx-auto px-6 py-8 text-center text-gray-500">
+             <div class="flex justify-center space-x-4 mb-6">
+                <a href="./admin.html" target="_blank" class="footer-link">Admin Login</a>
+                <a href="./agent.html" target="_blank" class="footer-link">Agent Login</a>
+            </div>
             <p>&copy; 2025 WinBig. All Rights Reserved.</p>
         </div>
     </footer>
@@ -112,7 +132,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, doc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, doc, where, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCP7extT3aBFU8Pzo95_zbmKviMGVRQt9E",
@@ -132,7 +152,8 @@
         const modalBody = document.getElementById('modal-body');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenu = document.getElementById('mobile-nav-links');
+        const desktopMenu = document.getElementById('desktop-nav-links');
         
         let allLotteries = [];
 
@@ -189,7 +210,8 @@
                     <img src="${lottery.imageUrl || 'https://placehold.co/600x400/1e1b4b/312e81?text=Prize'}" alt="${lottery.prizeName}" class="w-full h-48 object-cover rounded-t-xl">
                     <div class="p-6">
                         <h3 class="text-xl font-bold mb-2 text-white">${lottery.prizeName}</h3>
-                        <p class="text-violet-400 font-bold text-lg mb-2">₹${lottery.ticketPrice.toLocaleString()}</p>
+                        <p class="text-gray-400 text-sm line-through">MRP: ₹${(lottery.originalPrice || 0).toLocaleString()}</p>
+                        <p class="text-violet-400 font-bold text-2xl mb-2">₹${(lottery.offerPrice || 0).toLocaleString()}</p>
                         <p class="text-gray-400 text-sm">Draw Date: ${new Date(lottery.drawDate).toLocaleDateString()}</p>
                     </div>
                 `;
@@ -202,6 +224,7 @@
             if (!lottery) return;
             
             const isCompleted = new Date(lottery.drawDate) < new Date();
+            const originalPrice = lottery.originalPrice ? `<span class="line-through text-gray-400 text-xl">₹${lottery.originalPrice.toLocaleString()}</span>` : '';
 
             let winnerHtml = '';
             if (isCompleted) {
@@ -222,7 +245,10 @@
             modalBody.innerHTML = `
                 <img src="${lottery.imageUrl || 'https://placehold.co/600x300/1e1b4b/312e81?text=Prize'}" class="w-full h-56 object-cover rounded-lg mb-6">
                 <h3 class="text-3xl font-bold text-white mb-2">${lottery.prizeName}</h3>
-                <p class="text-violet-400 font-bold text-2xl mb-4">₹${lottery.ticketPrice.toLocaleString()} per ticket</p>
+                <div class="flex items-center space-x-4 mb-4">
+                    <p class="text-violet-400 font-bold text-3xl">₹${(lottery.offerPrice || 0).toLocaleString()}</p>
+                    ${originalPrice}
+                </div>
                 <div class="text-gray-300 space-y-3 border-t border-gray-700 pt-4 mt-4">
                     <p><strong>Draw Date:</strong> ${new Date(lottery.drawDate).toLocaleDateString()}</p>
                     <p><strong>Draw Location:</strong> ${lottery.drawPlace || 'Online Live Stream'}</p>
@@ -259,6 +285,29 @@
 
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+        });
+
+        function renderCustomNavLinks(pages) {
+            desktopMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
+            mobileMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
+            pages.forEach(page => {
+                const desktopLink = document.createElement('a');
+                desktopLink.href = `./page.html?slug=${page.slug}`;
+                desktopLink.textContent = page.title;
+                desktopLink.className = 'text-gray-300 hover:text-violet-400 transition-colors custom-nav-link';
+                desktopMenu.appendChild(desktopLink);
+                const mobileLink = document.createElement('a');
+                mobileLink.href = `./page.html?slug=${page.slug}`;
+                mobileLink.textContent = page.title;
+                mobileLink.className = 'block py-2 px-6 text-gray-300 hover:bg-gray-800 custom-nav-link';
+                mobileMenu.appendChild(mobileLink);
+            });
+        }
+        
+        const pagesQuery = query(collection(db, "custom_pages"), where("isActive", "==", true));
+        onSnapshot(pagesQuery, (snapshot) => {
+            const pages = snapshot.docs.map(doc => doc.data());
+            renderCustomNavLinks(pages);
         });
     </script>
 </body>
