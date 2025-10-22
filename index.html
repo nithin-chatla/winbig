@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Participate in our exciting lottery events!">
     <title>WinBig - The Future of Winning</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -209,7 +210,8 @@
             if (doc.exists()) {
                 const content = doc.data();
                 document.title = content.home_meta_title || 'WinBig - The Future of Winning';
-                document.querySelector('meta[name="description"]').setAttribute('content', content.home_meta_desc || 'Participate in our exciting lottery events!');
+                const metaDesc = document.querySelector('meta[name="description"]');
+                if(metaDesc) metaDesc.setAttribute('content', content.home_meta_desc || 'Participate in our exciting lottery events!');
                 document.getElementById('cms-home_hero_title').textContent = content.home_hero_title || 'The Future of Winning is Here';
                 document.getElementById('cms-home_hero_subtitle').innerHTML = content.home_hero_subtitle || 'Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.';
                 document.getElementById('cms-home_howitworks_title').textContent = content.home_howitworks_title || 'A New Way to Win';
@@ -355,7 +357,7 @@
             });
         }
         
-        const pagesQuery = query(collection(db, "custom_pages"), where("isActive", "==", true), orderBy("createdAt"));
+        const pagesQuery = query(collection(db, "custom_pages"), where("isActive", "==", true));
         onSnapshot(pagesQuery, (snapshot) => {
             const pages = snapshot.docs.map(doc => doc.data());
             renderCustomNavLinks(pages);
