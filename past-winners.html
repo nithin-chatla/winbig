@@ -30,6 +30,7 @@
             padding: 0.5rem 1rem;
             border-radius: 9999px;
             transition: all 0.2s ease-in-out;
+            font-size: 0.875rem;
         }
         .footer-link:hover {
             background-color: rgba(255, 255, 255, 0.2);
@@ -42,11 +43,14 @@
     <header class="bg-gray-900/70 backdrop-blur-md shadow-lg sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="text-2xl font-bold text-white tracking-wider">Win<span class="text-violet-400">Big</span></div>
-            <div class="hidden md:flex items-center space-x-8">
+            <div id="desktop-nav-links" class="hidden md:flex items-center space-x-8">
                 <a href="./index.html" class="text-gray-300 hover:text-violet-400 transition-colors">Home</a>
                 <a href="./events.html" class="text-gray-300 hover:text-violet-400 transition-colors">Events</a>
                 <a href="./gallery.html" class="text-gray-300 hover:text-violet-400 transition-colors">Gallery</a>
                 <a href="./past-winners.html" class="text-violet-400 font-semibold">Past Winners</a>
+                <a href="./about.html" class="text-gray-300 hover:text-violet-400 transition-colors">About Us</a>
+                <a href="./contact.html" class="text-gray-300 hover:text-violet-400 transition-colors">Contact</a>
+                <!-- Custom links will be injected here -->
             </div>
             <div class="md:hidden">
                 <button id="mobile-menu-btn" class="text-white p-2 rounded-md hover:bg-gray-800">
@@ -54,11 +58,14 @@
                 </button>
             </div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden bg-gray-900/90 backdrop-blur-md">
+        <div id="mobile-nav-links" class="hidden md:hidden bg-gray-900/90 backdrop-blur-md">
             <a href="./index.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Home</a>
             <a href="./events.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Events</a>
             <a href="./gallery.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Gallery</a>
             <a href="./past-winners.html" class="block py-2 px-6 text-violet-400 font-semibold">Past Winners</a>
+            <a href="./about.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">About Us</a>
+            <a href="./contact.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Contact</a>
+            <!-- Custom links will be injected here -->
         </div>
     </header>
 
@@ -85,7 +92,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, doc, where } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCP7extT3aBFU8Pzo95_zbmKviMGVRQt9E",
@@ -100,7 +107,8 @@
 
         const winnersGrid = document.getElementById('winners-grid');
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenu = document.getElementById('mobile-nav-links');
+        const desktopMenu = document.getElementById('desktop-nav-links');
         
         onSnapshot(doc(db, "site_content", "live_data"), (doc) => {
             if (doc.exists()) {
@@ -151,6 +159,29 @@
 
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+        });
+        
+        function renderCustomNavLinks(pages) {
+            desktopMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
+            mobileMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
+            pages.forEach(page => {
+                const desktopLink = document.createElement('a');
+                desktopLink.href = `./page.html?slug=${page.slug}`;
+                desktopLink.textContent = page.title;
+                desktopLink.className = 'text-gray-300 hover:text-violet-400 transition-colors custom-nav-link';
+                desktopMenu.appendChild(desktopLink);
+                const mobileLink = document.createElement('a');
+                mobileLink.href = `./page.html?slug=${page.slug}`;
+                mobileLink.textContent = page.title;
+                mobileLink.className = 'block py-2 px-6 text-gray-300 hover:bg-gray-800 custom-nav-link';
+                mobileMenu.appendChild(mobileLink);
+            });
+        }
+        
+        const pagesQuery = query(collection(db, "custom_pages"), where("isActive", "==", true));
+        onSnapshot(pagesQuery, (snapshot) => {
+            const pages = snapshot.docs.map(doc => doc.data());
+            renderCustomNavLinks(pages);
         });
     </script>
 
