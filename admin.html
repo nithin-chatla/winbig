@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf-autotable.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/gh0a2zs016et5toy39653qreiqvujxx1irp4phkbsak93dhd/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <style>
         :root {
             --primary-color: #4f46e5; --primary-hover: #4338ca; --secondary-bg: #f8fafc;
@@ -18,7 +19,7 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--secondary-bg); color: var(--text-dark); margin: 0; }
         nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color); }
         nav .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
-        main { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        main { padding: 1rem; max-width: 1400px; margin: 0 auto; }
         .container { background-color: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin-bottom: 2rem; }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
         h2, h3 { color: var(--text-dark); text-align: center; margin-top: 0; }
@@ -78,12 +79,6 @@
             margin-right: 1rem; transition: background-color 0.2s;
         }
         input[type="file"]::file-selector-button:hover { background-color: var(--primary-hover); }
-
-        @media (max-width: 768px) {
-            main { padding: 1rem; }
-            nav { flex-direction: column; gap: 0.5rem; padding: 1rem; }
-            .section-header { flex-direction: column; align-items: flex-start; }
-        }
     </style>
 </head>
 <body>
@@ -129,13 +124,15 @@
             <div class="container">
                 <h2>Website Content Management (CMS)</h2>
                 <form id="cms-form" class="mt-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <h3 class="font-semibold text-lg mb-2">Homepage</h3>
                             <div class="space-y-6">
                                 <div class="form-group"><input type="text" id="cms-home_hero_title" class="form-input" placeholder=" "><label class="form-label">Hero Title</label></div>
-                                <div class="form-group"><textarea id="cms-home_hero_subtitle" rows="3" class="form-input" placeholder=" "></textarea><label class="form-label">Hero Subtitle</label></div>
+                                <div><label class="block text-sm font-medium mb-1">Hero Subtitle</label><textarea id="cms-home_hero_subtitle" rows="3"></textarea></div>
                                 <div class="form-group"><input type="text" id="cms-home_howitworks_title" class="form-input" placeholder=" "><label class="form-label">"How It Works" Title</label></div>
+                                <div class="form-group"><input type="text" id="cms-home_meta_title" class="form-input" placeholder=" "><label class="form-label">Homepage - SEO Title</label></div>
+                                <div class="form-group"><textarea id="cms-home_meta_desc" rows="3" class="form-input" placeholder=" "></textarea><label class="form-label">Homepage - SEO Description</label></div>
                             </div>
                         </div>
                         <div>
@@ -144,6 +141,15 @@
                                 <div class="form-group"><input type="text" id="cms-events_page_title" class="form-input" placeholder=" "><label class="form-label">Events Page Title</label></div>
                                 <div class="form-group"><input type="text" id="cms-gallery_page_title" class="form-input" placeholder=" "><label class="form-label">Gallery Page Title</label></div>
                                 <div class="form-group"><input type="text" id="cms-winners_page_title" class="form-input" placeholder=" "><label class="form-label">Winners Page Title</label></div>
+                                <div class="form-group"><input type="text" id="cms-about_page_title" class="form-input" placeholder=" "><label class="form-label">About Page Title</label></div>
+                                <div class="form-group"><input type="text" id="cms-contact_page_title" class="form-input" placeholder=" "><label class="form-label">Contact Page Title</label></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Page Content</h3>
+                            <div class="space-y-6">
+                                <div><label class="block text-sm font-medium mb-1">About Page Content</label><textarea id="cms-about_page_content" rows="6"></textarea></div>
+                                <div><label class="block text-sm font-medium mb-1">Contact Page Subtitle</label><textarea id="cms-contact_page_subtitle" rows="3"></textarea></div>
                             </div>
                         </div>
                     </div>
@@ -156,7 +162,7 @@
 
             <div class="container">
                 <h2>Content Management</h2>
-                <div class="grid-container">
+                <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
                     <div>
                         <h3>Add a Past Winner</h3>
                         <form id="add-winner-form" class="space-y-6 mt-4">
@@ -175,9 +181,37 @@
                             <button type="submit" class="btn-primary">Upload to Gallery</button>
                         </form>
                     </div>
+                    <div>
+                        <h3>Create Custom Page</h3>
+                        <form id="add-page-form" class="space-y-6 mt-4">
+                            <div class="form-group"><input type="text" id="page-title" class="form-input" placeholder=" " required><label class="form-label">Page Title</label></div>
+                            <div class="form-group"><input type="text" id="page-slug" class="form-input" placeholder=" " required><label class="form-label">Page Slug (e.g., about-us)</label></div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="page-is-active" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked>
+                                <label for="page-is-active" class="ml-2 block text-sm text-gray-900">Visible in Navigation</label>
+                            </div>
+                            <div><label class="block text-sm font-medium mb-1">Page Content (HTML)</label><textarea id="page-content" rows="6"></textarea></div>
+                            <button type="submit" class="btn-primary">Save Page</button>
+                        </form>
+                    </div>
                 </div>
             </div>
             
+            <div class="container">
+                <div class="section-header">
+                    <h2>Manage Testimonials</h2>
+                    <button class="btn-sm btn-success export-pdf-btn" data-table="manage-testimonials-list" data-title="Testimonials">Export PDF</button>
+                </div>
+                <div id="manage-testimonials-list"><div class="loader"></div></div>
+            </div>
+
+            <div class="container">
+                <div class="section-header">
+                    <h2>Manage Custom Pages</h2>
+                </div>
+                <div id="manage-pages-list"><div class="loader"></div></div>
+            </div>
+
             <div class="container">
                 <div class="section-header">
                     <h2>Manage Lotteries</h2>
@@ -260,7 +294,8 @@
                     <form id="create-lottery-form" class="space-y-6">
                         <div class="form-group"><input type="text" id="prize-name" class="form-input" placeholder=" " required><label class="form-label">Prize Name</label></div>
                         <div class="form-group"><input type="text" id="lottery-prefix" class="form-input" placeholder=" " required><label class="form-label">Serial Prefix (e.g. LOT1)</label></div>
-                        <div class="form-group"><input type="number" id="ticket-price" class="form-input" placeholder=" " required><label class="form-label">Ticket Price (₹)</label></div>
+                        <div class="form-group"><input type="number" id="original-price" class="form-input" placeholder=" " required><label class="form-label">Original Price (MRP)</label></div>
+                        <div class="form-group"><input type="number" id="offer-price" class="form-input" placeholder=" " required><label class="form-label">Offer Price (₹)</label></div>
                         <div class="form-group"><input type="date" id="draw-date" class="form-input" placeholder=" " required><label class="form-label">Draw Date</label></div>
                         <div class="form-group"><input type="text" id="draw-place" class="form-input" placeholder=" "><label class="form-label">Draw Location</label></div>
                         <div class="form-group"><textarea id="process-details" rows="2" class="form-input" placeholder=" "></textarea><label class="form-label">Process Details</label></div>
@@ -283,7 +318,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="edit-lottery-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-lottery-modal">&times;</span> <h2>Edit Lottery</h2> <form id="edit-lottery-form" class="space-y-4"> <input type="hidden" id="edit-lottery-id"> <div class="form-group"><input type="text" id="edit-prize-name" class="form-input" placeholder=" " required><label class="form-label">Prize Name</label></div> <div class="form-group"><input type="text" id="edit-lottery-prefix" class="form-input" placeholder=" " required><label class="form-label">Serial Prefix</label></div> <div class="form-group"><input type="number" id="edit-ticket-price" class="form-input" placeholder=" " required><label class="form-label">Ticket Price (₹)</label></div> <div class="form-group"><input type="date" id="edit-draw-date" class="form-input" placeholder=" " required><label class="form-label">Draw Date</label></div> <div class="form-group"><input type="text" id="edit-draw-place" class="form-input" placeholder=" "><label class="form-label">Draw Location</label></div> <div class="form-group"><textarea id="edit-process-details" rows="2" class="form-input" placeholder=" "></textarea><label class="form-label">Process Details</label></div> <div><label class="block text-sm font-medium mb-1">Update Image (Optional)</label><input type="file" id="edit-lottery-image" accept="image/*"></div> <div id="winner-assignment-section" style="display:none;" class="pt-4 mt-4 border-t"> <h3 class="font-semibold text-lg mb-2">Assign Winner</h3> <div class="form-group"><select id="edit-lottery-winner" class="form-input"></select><label class="form-label">Select Winner</label></div> <div class="form-group"><input type="text" id="edit-winner-ticket-id" class="form-input" placeholder=" "><label class="form-label">Winning Ticket ID</label></div> </div> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
+    <div id="edit-lottery-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-lottery-modal">&times;</span> <h2>Edit Lottery</h2> <form id="edit-lottery-form" class="space-y-4"> <input type="hidden" id="edit-lottery-id"> <div class="form-group"><input type="text" id="edit-prize-name" class="form-input" placeholder=" " required><label class="form-label">Prize Name</label></div> <div class="form-group"><input type="text" id="edit-lottery-prefix" class="form-input" placeholder=" " required><label class="form-label">Serial Prefix</label></div> <div class="form-group"><input type="number" id="edit-original-price" class="form-input" placeholder=" " required><label class="form-label">Original Price (MRP)</label></div> <div class="form-group"><input type="number" id="edit-offer-price" class="form-input" placeholder=" " required><label class="form-label">Offer Price (₹)</label></div> <div class="form-group"><input type="date" id="edit-draw-date" class="form-input" placeholder=" " required><label class="form-label">Draw Date</label></div> <div class="form-group"><input type="text" id="edit-draw-place" class="form-input" placeholder=" "><label class="form-label">Draw Location</label></div> <div class="form-group"><textarea id="edit-process-details" rows="2" class="form-input" placeholder=" "></textarea><label class="form-label">Process Details</label></div> <div><label class="block text-sm font-medium mb-1">Update Image (Optional)</label><input type="file" id="edit-lottery-image" accept="image/*"></div> <div id="winner-assignment-section" style="display:none;" class="pt-4 mt-4 border-t"> <h3 class="font-semibold text-lg mb-2">Assign Winner</h3> <div class="form-group"><select id="edit-lottery-winner" class="form-input"></select><label class="form-label">Select Winner</label></div> <div class="form-group"><input type="text" id="edit-winner-ticket-id" class="form-input" placeholder=" "><label class="form-label">Winning Ticket ID</label></div> </div> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
     <div id="edit-agent-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-agent-modal">&times;</span> <h2>Edit Agent</h2> <form id="edit-agent-form" class="space-y-4"> <input type="hidden" id="edit-agent-id"> <div class="form-group"><input type="text" id="edit-agent-name" class="form-input" placeholder=" " required><label class="form-label">Agent Name</label></div> <div class="form-group"><input type="tel" id="edit-agent-phone" class="form-input" placeholder=" " required><label class="form-label">Agent Phone</label></div> <div class="form-group"><input type="text" id="edit-agent-password" class="form-input" placeholder=" "><label class="form-label">New Password (optional)</label></div> <div><label class="block text-sm font-medium mb-1">Update Photo (Optional)</label><input type="file" id="edit-agent-photo" accept="image/*"></div> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
     <div id="view-participants-modal" class="modal"> <div class="modal-content"> <span class="close-btn" data-modal="view-participants-modal">&times;</span> <h2 id="participants-modal-title">Participants</h2> <div class="form-group"><input type="text" id="participants-modal-search" class="form-input" placeholder=" "><label class="form-label">Search Participants...</label></div> <div id="participants-modal-list"></div> </div> </div>
     <div id="edit-withdrawal-modal" class="modal"> <div class="modal-content" style="max-width: 500px;"> <span class="close-btn" data-modal="edit-withdrawal-modal">&times;</span> <h2>Edit Withdrawal</h2> <form id="edit-withdrawal-form" class="space-y-4"> <input type="hidden" id="edit-withdrawal-id"> <div class="form-group"><input type="number" id="edit-withdrawal-amount" class="form-input" placeholder=" " required><label class="form-label">Amount (₹)</label></div> <div class="form-group"><input type="text" id="edit-withdrawal-desc" class="form-input" placeholder=" " required><label class="form-label">Description</label></div> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
@@ -299,6 +334,7 @@
             </div>
         </div>
     </div>
+    <div id="edit-page-modal" class="modal"> <div class="modal-content" style="max-width: 800px;"> <span class="close-btn" data-modal="edit-page-modal">&times;</span> <h2>Edit Custom Page</h2> <form id="edit-page-form" class="space-y-4"> <input type="hidden" id="edit-page-id"> <div class="form-group"><input type="text" id="edit-page-title" class="form-input" placeholder=" " required><label class="form-label">Page Title</label></div> <div class="form-group"><input type="text" id="edit-page-slug" class="form-input" placeholder=" " required><label class="form-label">Page Slug</label></div> <div class="flex items-center"><input type="checkbox" id="edit-page-is-active" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="edit-page-is-active" class="ml-2 block text-sm text-gray-900">Visible in Navigation</label></div> <div><label class="block text-sm font-medium mb-1">Page Content (HTML)</label><textarea id="edit-page-content" rows="10"></textarea></div> <button type="submit" class="btn-primary">Save Changes</button> </form> </div> </div>
 
 
     <script type="module">
@@ -334,6 +370,7 @@
         let allWithdrawals = [];
         let allAdjustments = [];
         let allWinners = [];
+        let allCustomPages = new Map();
         let agentPerformanceData = {};
         let lotteryPerformanceData = {};
         let currentLotteryParticipants = [];
@@ -366,6 +403,7 @@
                 withdrawals: (data) => allWithdrawals = data,
                 adjustments: (data) => allAdjustments = data,
                 winners: (data) => allWinners = data,
+                custom_pages: (data) => allCustomPages = new Map(data.map(item => [item.id, item])),
             };
             Object.entries(collectionsToWatch).forEach(([name, setter]) => {
                 const unsub = onSnapshot(collection(db, name), (snapshot) => {
@@ -375,7 +413,12 @@
                 unsubscribes.push(unsub);
             });
             const unsubContent = onSnapshot(doc(db, "site_content", "live_data"), (doc) => {
-                if (doc.exists()) { populateCmsForm(doc.data()); }
+                if (doc.exists()) { 
+                    populateCmsForm(doc.data()); 
+                    initTinyMCE(doc.data());
+                } else {
+                    initTinyMCE();
+                }
             });
             unsubscribes.push(unsubContent);
         }
@@ -389,6 +432,8 @@
             renderWithdrawalHistory();
             renderAdjustmentHistory();
             renderDailyRevenue();
+            renderTestimonials();
+            renderManageCustomPages();
             updateStats();
         }
 
@@ -402,16 +447,17 @@
                 const lotteryPerf = lotteryPerformanceData[ticket.lotteryId];
                 const lottery = allLotteries.get(ticket.lotteryId);
                 if (lottery) {
+                    const price = lottery.offerPrice || lottery.ticketPrice || 0;
                     if (agentPerf) {
                         if (!agentPerf.lotteries[ticket.lotteryId]) {
                             agentPerf.lotteries[ticket.lotteryId] = { prizeName: lottery.prizeName, ticketsSold: 0, totalRevenue: 0 };
                         }
                         agentPerf.lotteries[ticket.lotteryId].ticketsSold++;
-                        agentPerf.lotteries[ticket.lotteryId].totalRevenue += lottery.ticketPrice;
+                        agentPerf.lotteries[ticket.lotteryId].totalRevenue += price;
                     }
                     if (lotteryPerf) {
                         lotteryPerf.ticketsSold++;
-                        lotteryPerf.totalRevenue += lottery.ticketPrice;
+                        lotteryPerf.totalRevenue += price;
                     }
                 }
             });
@@ -419,15 +465,16 @@
 
         function renderManageLotteries() {
             const list = document.getElementById('manage-lotteries-list');
-            list.innerHTML = `<table><thead><tr><th>Image</th><th>Prize</th><th>Prefix</th><th>Ticket Price</th><th>Tickets Sold</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
+            list.innerHTML = `<table><thead><tr><th>Image</th><th>Prize</th><th>Prefix</th><th>Price</th><th>Tickets Sold</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
             const tbody = list.querySelector('tbody');
             Object.values(lotteryPerformanceData).forEach(perf => {
                 const row = document.createElement('tr');
+                const originalPrice = perf.originalPrice ? `<span class="line-through text-gray-500">₹${perf.originalPrice.toLocaleString()}</span><br>` : '';
                 row.innerHTML = `
                     <td><img src="${perf.imageUrl || 'https://placehold.co/96x64/e2e8f0/64748b?text=N/A'}" alt="${perf.prizeName}" class="w-24 h-16 object-cover rounded-lg"></td>
                     <td><strong>${perf.prizeName}</strong></td>
                     <td>${perf.prefix || 'N/A'}</td>
-                    <td>₹${perf.ticketPrice.toLocaleString()}</td>
+                    <td>${originalPrice}<strong class="text-green-600">₹${(perf.offerPrice || perf.ticketPrice).toLocaleString()}</strong></td>
                     <td>${perf.ticketsSold}</td>
                     <td><span class="status-badge ${perf.isActive ? 'status-active' : 'status-inactive'}">${perf.isActive ? 'Active' : 'Inactive'}</span></td>
                     <td>
@@ -521,7 +568,7 @@
                 <tr><td>Agent's Total Revenue (All Lotteries)</td><td>₹${overallRevenue.toLocaleString()}</td></tr>
                 <tr><td>Agent's Total Amount Paid</td><td>₹${(agent.amountPaid || 0).toLocaleString()}</td></tr>
                 <tr><td>Agent's Overall Balance Due</td>${balanceCell}</tr>
-                <tr><td>Add Payment to Agent's Account</td><td><input type="number" class="payment-input" placeholder="Amount"><button class="btn-sm btn-primary add-payment-btn" data-agent-id="${agent.id}">Add</button></td></tr>
+                <tr class="form-group"><td><input type="number" class="payment-input form-input" placeholder=" "><label class="form-label">Amount</label></td><td><button class="btn-sm btn-primary add-payment-btn" data-agent-id="${agent.id}">Add</button></td></tr>
             </tbody></table>`;
         }
 
@@ -577,7 +624,7 @@
             allTickets.forEach(ticket => {
                 if (ticket.createdAt?.toDate) {
                     const date = ticket.createdAt.toDate().toISOString().split('T')[0];
-                    const price = allLotteries.get(ticket.lotteryId)?.ticketPrice || 0;
+                    const price = allLotteries.get(ticket.lotteryId)?.offerPrice || allLotteries.get(ticket.lotteryId)?.ticketPrice || 0;
                     dailyRevenue[date] = (dailyRevenue[date] || 0) + price;
                 }
             });
@@ -587,8 +634,49 @@
                 <tr><td><strong>${new Date(date).toLocaleDateString()}</strong></td><td><strong>₹${revenue.toLocaleString()}</strong></td></tr>`).join('')}</tbody></table>`;
         }
 
+        function renderTestimonials() {
+            const list = document.getElementById('manage-testimonials-list');
+            if(allWinners.length === 0) { list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No winners added yet.</p>`; return; }
+            list.innerHTML = `<table><thead><tr><th>Photo</th><th>Name</th><th>Prize</th><th>Testimonial</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
+            const tbody = list.querySelector('tbody');
+            allWinners.forEach(winner => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="${winner.imageUrl || 'https://placehold.co/56x56/e2e8f0/64748b?text=N/A'}" alt="${winner.name}" class="w-14 h-14 object-cover rounded-full"></td>
+                    <td><strong>${winner.name}</strong></td>
+                    <td>${winner.prize}</td>
+                    <td class="whitespace-normal">${winner.testimonial}</td>
+                    <td><button class="btn-sm btn-danger delete-winner-btn" data-id="${winner.id}">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderManageCustomPages() {
+            const list = document.getElementById('manage-pages-list');
+            list.innerHTML = `<table><thead><tr><th>Title</th><th>Slug</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
+            const tbody = list.querySelector('tbody');
+            if (allCustomPages.size === 0) {
+                list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No custom pages created yet.</p>`;
+                return;
+            }
+            allCustomPages.forEach(page => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${page.title}</strong></td>
+                    <td>/page.html?slug=${page.slug}</td>
+                    <td><span class="status-badge ${page.isActive ? 'status-active' : 'status-inactive'}">${page.isActive ? 'Visible' : 'Hidden'}</span></td>
+                    <td>
+                        <button class="btn-sm ${page.isActive ? 'btn-warning' : 'btn-success'} toggle-page-status-btn" data-id="${page.id}">${page.isActive ? 'Hide' : 'Show'}</button>
+                        <button class="btn-sm btn-warning edit-page-btn" data-id="${page.id}">Edit</button>
+                        <button class="btn-sm btn-danger delete-page-btn" data-id="${page.id}">Delete</button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+        }
+        
         function updateStats() {
-            const ticketRevenue = allTickets.reduce((sum, ticket) => sum + (allLotteries.get(ticket.lotteryId)?.ticketPrice || 0), 0);
+            const ticketRevenue = allTickets.reduce((sum, ticket) => sum + (allLotteries.get(ticket.lotteryId)?.offerPrice || allLotteries.get(ticket.lotteryId)?.ticketPrice || 0), 0);
             const totalAdjustments = allAdjustments.reduce((sum, adj) => sum + adj.amount, 0);
             let totalRevenue = ticketRevenue + totalAdjustments;
             if (totalRevenue < 0) { totalRevenue = 0; }
@@ -608,11 +696,54 @@
         
         function populateCmsForm(content) {
             document.getElementById('cms-home_hero_title').value = content.home_hero_title || '';
-            document.getElementById('cms-home_hero_subtitle').value = content.home_hero_subtitle || '';
             document.getElementById('cms-home_howitworks_title').value = content.home_howitworks_title || '';
             document.getElementById('cms-events_page_title').value = content.events_page_title || '';
             document.getElementById('cms-gallery_page_title').value = content.gallery_page_title || '';
             document.getElementById('cms-winners_page_title').value = content.winners_page_title || '';
+            document.getElementById('cms-about_page_title').value = content.about_page_title || '';
+            document.getElementById('cms-contact_page_title').value = content.contact_page_title || '';
+            document.getElementById('cms-home_meta_title').value = content.home_meta_title || '';
+            document.getElementById('cms-home_meta_desc').value = content.home_meta_desc || '';
+            
+            if(tinymce.get('cms-home_hero_subtitle')) { tinymce.get('cms-home_hero_subtitle').setContent(content.home_hero_subtitle || ''); }
+            if(tinymce.get('cms-about_page_content')) { tinymce.get('cms-about_page_content').setContent(content.about_page_content || ''); }
+            if(tinymce.get('cms-contact_page_subtitle')) { tinymce.get('cms-contact_page_subtitle').setContent(content.contact_page_subtitle || ''); }
+        }
+
+        function initTinyMCE(content = {}) {
+            tinymce.remove(); // Remove all existing instances
+            const sharedConfig = {
+                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+                toolbar: 'undo redo | blocks | bold italic underline | link | removeformat',
+                height: 200,
+            };
+            
+            tinymce.init({ ...sharedConfig, selector: '#cms-home_hero_subtitle', setup: (editor) => editor.on('init', () => editor.setContent(content.home_hero_subtitle || '')) });
+            tinymce.init({ ...sharedConfig, selector: '#cms-about_page_content', height: 300, toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link | align | numlist bullist | removeformat', setup: (editor) => editor.on('init', () => editor.setContent(content.about_page_content || '')) });
+            tinymce.init({ ...sharedConfig, selector: '#cms-contact_page_subtitle', setup: (editor) => editor.on('init', () => editor.setContent(content.contact_page_subtitle || '')) });
+            tinymce.init({ ...sharedConfig, selector: '#page-content', height: 400, plugins: sharedConfig.plugins + ' code', toolbar: sharedConfig.toolbar + ' code' });
+        }
+
+        function openEditPageModal(id) {
+            const page = allCustomPages.get(id);
+            document.getElementById('edit-page-id').value = id;
+            document.getElementById('edit-page-title').value = page.title;
+            document.getElementById('edit-page-slug').value = page.slug;
+            document.getElementById('edit-page-is-active').checked = page.isActive;
+
+            tinymce.remove('#edit-page-content');
+            tinymce.init({
+                selector: '#edit-page-content',
+                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link | align | numlist bullist | code | removeformat',
+                height: 400,
+                setup: (editor) => {
+                    editor.on('init', () => {
+                        editor.setContent(page.content || '');
+                    });
+                }
+            });
+            document.getElementById('edit-page-modal').style.display = 'block';
         }
 
         function openEditLotteryModal(id) {
@@ -620,7 +751,8 @@
             document.getElementById('edit-lottery-id').value = id;
             document.getElementById('edit-prize-name').value = lottery.prizeName;
             document.getElementById('edit-lottery-prefix').value = lottery.prefix || '';
-            document.getElementById('edit-ticket-price').value = lottery.ticketPrice;
+            document.getElementById('edit-original-price').value = lottery.originalPrice || '';
+            document.getElementById('edit-offer-price').value = lottery.offerPrice || lottery.ticketPrice || '';
             document.getElementById('edit-draw-date').value = lottery.drawDate;
             document.getElementById('edit-draw-place').value = lottery.drawPlace || '';
             document.getElementById('edit-process-details').value = lottery.processDetails || '';
@@ -720,6 +852,12 @@
             confirmCallback = onConfirm;
         }
 
+        function showMessage(text, type) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="message ${type}" style="display:block;">${text}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 4000);
+        }
+
         document.getElementById('confirmation-modal-cancel-btn').addEventListener('click', () => { confirmationModal.style.display = 'none'; confirmCallback = null; });
         document.getElementById('confirmation-modal-confirm-btn').addEventListener('click', () => { if(confirmCallback) { confirmCallback(); } confirmationModal.style.display = 'none'; confirmCallback = null; });
 
@@ -738,10 +876,19 @@
             if (e.target.matches('.delete-ticket-btn')) { const ticket = allTickets.find(t => t.id === e.target.dataset.id); showConfirmationModal(`Are you sure you want to delete ticket ${ticket.serialNumber}?`, () => deleteDoc(doc(db, "tickets", e.target.dataset.id))); }
             if (e.target.matches('.delete-lottery-btn')) { showConfirmationModal('Are you sure you want to PERMANENTLY delete this lottery and all associated tickets?', () => { allTickets.filter(t => t.lotteryId === e.target.dataset.id).forEach(t => deleteDoc(doc(db, "tickets", t.id))); deleteDoc(doc(db, "lotteries", e.target.dataset.id)); }); }
             if (e.target.matches('.delete-agent-btn')) { showConfirmationModal('Are you sure you want to PERMANENTLY delete this agent? This cannot be undone.', () => deleteDoc(doc(db, "agents", e.target.dataset.id))); }
+            if (e.target.matches('.delete-winner-btn')) { showConfirmationModal('Are you sure you want to delete this winner?', () => deleteDoc(doc(db, "winners", e.target.dataset.id))); }
+            if (e.target.matches('.edit-page-btn')) { openEditPageModal(e.target.dataset.id); }
+            if (e.target.matches('.delete-page-btn')) { showConfirmationModal('Are you sure you want to PERMANENTLY delete this custom page?', () => deleteDoc(doc(db, "custom_pages", e.target.dataset.id))); }
+            if (e.target.matches('.toggle-page-status-btn')) { const id = e.target.dataset.id; const page = allCustomPages.get(id); const action = page.isActive ? 'Hide' : 'Show'; showConfirmationModal(`Are you sure you want to ${action} this page in the navigation?`, () => updateDoc(doc(db, "custom_pages", id), { isActive: !page.isActive })); }
             if (e.target.matches('.toggle-lottery-status-btn')) { const id = e.target.dataset.id; const lottery = allLotteries.get(id); const action = lottery.isActive ? 'Deactivate' : 'Activate'; showConfirmationModal(`Are you sure you want to ${action} this lottery?`, () => updateDoc(doc(db, "lotteries", id), { isActive: !lottery.isActive })); }
             if (e.target.matches('.toggle-agent-status-btn')) { const id = e.target.dataset.id; const agent = allAgents.get(id); const action = agent.isActive ? 'Deactivate' : 'Activate'; showConfirmationModal(`Are you sure you want to ${action} this agent?`, () => updateDoc(doc(db, "agents", id), { isActive: !agent.isActive })); }
             if (e.target.matches('.add-payment-btn')) { const agentId = e.target.dataset.agentId; const input = e.target.previousElementSibling; const newPaymentAmount = Number(input.value); if (isNaN(newPaymentAmount) || newPaymentAmount <= 0) { alert("Please enter a valid positive amount."); return; } const agentData = allAgents.get(agentId); const currentAmountPaid = agentData.amountPaid || 0; const newTotalPaid = currentAmountPaid + newPaymentAmount; e.target.textContent = '...'; e.target.disabled = true; await updateDoc(doc(db, "agents", agentId), { amountPaid: newTotalPaid }); input.value = ''; }
-            if (e.target.matches('.close-btn')) { document.getElementById(e.target.dataset.modal).style.display = 'none'; }
+            if (e.target.matches('.close-btn')) { 
+                document.getElementById(e.target.dataset.modal).style.display = 'none'; 
+                if (e.target.dataset.modal === 'edit-page-modal') {
+                    tinymce.remove('#edit-page-content');
+                }
+            }
             if (e.target.matches('.export-pdf-btn')) {
                 const { jsPDF } = window.jspdf;
                 const tableId = e.target.dataset.table;
@@ -798,34 +945,157 @@
              window.location.reload();
         });
 
-        document.getElementById('create-lottery-form').addEventListener('submit', async (e) => { e.preventDefault(); const s = e.target.querySelector('button'); s.disabled=true; s.textContent='...'; const i = document.getElementById('lottery-image').files[0]; if(!i){alert("Please select an image.");s.disabled=false;s.textContent='Create Lottery';return;} const u = await uploadImageToCloudinary(i); if(u){await addDoc(collection(db, "lotteries"), { prizeName: document.getElementById('prize-name').value, prefix: document.getElementById('lottery-prefix').value.toUpperCase(), ticketPrice: Number(document.getElementById('ticket-price').value), drawDate: document.getElementById('draw-date').value, drawPlace: document.getElementById('draw-place').value, processDetails: document.getElementById('process-details').value, imageUrl:u, isActive: true, createdAt: serverTimestamp() }); e.target.reset();} s.disabled=false;s.textContent='Create Lottery'; });
+        document.getElementById('create-lottery-form').addEventListener('submit', async (e) => { e.preventDefault(); const s = e.target.querySelector('button'); s.disabled=true; s.textContent='...'; const i = document.getElementById('lottery-image').files[0]; if(!i){alert("Please select an image.");s.disabled=false;s.textContent='Create Lottery';return;} const u = await uploadImageToCloudinary(i); if(u){await addDoc(collection(db, "lotteries"), { prizeName: document.getElementById('prize-name').value, prefix: document.getElementById('lottery-prefix').value.toUpperCase(), originalPrice: Number(document.getElementById('original-price').value), offerPrice: Number(document.getElementById('offer-price').value), drawDate: document.getElementById('draw-date').value, drawPlace: document.getElementById('draw-place').value, processDetails: document.getElementById('process-details').value, imageUrl:u, isActive: true, createdAt: serverTimestamp() }); e.target.reset();} s.disabled=false;s.textContent='Create Lottery'; });
         document.getElementById('create-agent-form').addEventListener('submit', async (e) => { e.preventDefault(); const s = e.target.querySelector('button'); s.disabled = true; s.textContent = '...'; const i = document.getElementById('agent-photo').files[0]; if (!i) { alert("Please select an image."); s.disabled = false; s.textContent = 'Create Agent'; return; } const u = await uploadImageToCloudinary(i); if(u){await addDoc(collection(db, "agents"), { name: document.getElementById('agent-name').value, phone: document.getElementById('agent-phone').value, password: document.getElementById('agent-password').value, imageUrl: u, isActive: true, amountPaid: 0 }); e.target.reset();} s.disabled=false; s.textContent='Create Agent'; });
-        document.getElementById('edit-lottery-form').addEventListener('submit', async (e) => { e.preventDefault(); const s=e.target.querySelector('button'); s.disabled=true;s.textContent='...'; const id = document.getElementById('edit-lottery-id').value; const i = document.getElementById('edit-lottery-image').files[0]; let u=allLotteries.get(id).imageUrl; if(i){const n=await uploadImageToCloudinary(i);if(n)u=n;} const d={prizeName:document.getElementById('edit-prize-name').value,prefix:document.getElementById('edit-lottery-prefix').value.toUpperCase(),ticketPrice:Number(document.getElementById('edit-ticket-price').value),drawDate:document.getElementById('edit-draw-date').value, drawPlace: document.getElementById('edit-draw-place').value, processDetails: document.getElementById('edit-process-details').value, imageUrl:u}; const winnerId = document.getElementById('edit-lottery-winner').value; const winnerTicketId = document.getElementById('edit-winner-ticket-id').value; if(winnerId){const winnerData=allWinners.find(w=>w.id===winnerId); d.winnerId=winnerId; d.winnerName=winnerData.name; d.winnerImageUrl=winnerData.imageUrl;} if(winnerTicketId){d.winnerTicketId=winnerTicketId;} await updateDoc(doc(db,"lotteries",id),d); document.getElementById('edit-lottery-modal').style.display='none'; s.disabled=false;s.textContent='Save Changes'; });
+        document.getElementById('edit-lottery-form').addEventListener('submit', async (e) => { e.preventDefault(); const s=e.target.querySelector('button'); s.disabled=true;s.textContent='...'; const id = document.getElementById('edit-lottery-id').value; const i = document.getElementById('edit-lottery-image').files[0]; let u=allLotteries.get(id).imageUrl; if(i){const n=await uploadImageToCloudinary(i);if(n)u=n;} const d={prizeName:document.getElementById('edit-prize-name').value,prefix:document.getElementById('edit-lottery-prefix').value.toUpperCase(),originalPrice: Number(document.getElementById('edit-original-price').value), offerPrice: Number(document.getElementById('edit-offer-price').value), drawDate:document.getElementById('edit-draw-date').value, drawPlace: document.getElementById('edit-draw-place').value, processDetails: document.getElementById('edit-process-details').value, imageUrl:u}; const winnerId = document.getElementById('edit-lottery-winner').value; const winnerTicketId = document.getElementById('edit-winner-ticket-id').value; if(winnerId){const winnerData=allWinners.find(w=>w.id===winnerId); d.winnerId=winnerId; d.winnerName=winnerData.name; d.winnerImageUrl=winnerData.imageUrl;} if(winnerTicketId){d.winnerTicketId=winnerTicketId;} await updateDoc(doc(db,"lotteries",id),d); document.getElementById('edit-lottery-modal').style.display='none'; s.disabled=false;s.textContent='Save Changes'; });
         document.getElementById('edit-agent-form').addEventListener('submit', async (e) => { e.preventDefault(); const s=e.target.querySelector('button'); s.disabled=true; s.textContent='...'; const id = document.getElementById('edit-agent-id').value; const password = document.getElementById('edit-agent-password').value; const i = document.getElementById('edit-agent-photo').files[0]; let u = allAgents.get(id).imageUrl; if(i){const n=await uploadImageToCloudinary(i);if(n)u=n;} const d = { name: document.getElementById('edit-agent-name').value, phone: document.getElementById('edit-agent-phone').value, imageUrl: u }; if (password) { d.password = password; } await updateDoc(doc(db, "agents", id), d); document.getElementById('edit-agent-modal').style.display = 'none'; s.disabled=false; s.textContent='Save Changes';});
         document.getElementById('withdrawal-form').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, "withdrawals"), { amount: Number(document.getElementById('withdrawal-amount').value), description: document.getElementById('withdrawal-desc').value, date: serverTimestamp() }); e.target.reset(); });
         document.getElementById('adjustment-form').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, "adjustments"), { amount: Number(document.getElementById('adjustment-amount').value), description: document.getElementById('adjustment-desc').value, date: serverTimestamp() }); e.target.reset(); });
         document.getElementById('edit-withdrawal-form').addEventListener('submit', async (e) => { e.preventDefault(); await updateDoc(doc(db, "withdrawals", document.getElementById('edit-withdrawal-id').value), { amount: Number(document.getElementById('edit-withdrawal-amount').value), description: document.getElementById('edit-withdrawal-desc').value }); document.getElementById('edit-withdrawal-modal').style.display = 'none'; });
         document.getElementById('edit-adjustment-form').addEventListener('submit', async (e) => { e.preventDefault(); await updateDoc(doc(db, "adjustments", document.getElementById('edit-adjustment-id').value), { amount: Number(document.getElementById('edit-adjustment-amount').value), description: document.getElementById('edit-adjustment-desc').value }); document.getElementById('edit-adjustment-modal').style.display = 'none'; });
-        document.getElementById('cms-form').addEventListener('submit', async (e) => { e.preventDefault(); const s = e.target.querySelector('button'); s.disabled = true; s.textContent = 'Saving...'; const d = { home_hero_title: document.getElementById('cms-home_hero_title').value, home_hero_subtitle: document.getElementById('cms-home_hero_subtitle').value, home_howitworks_title: document.getElementById('cms-home_howitworks_title').value, events_page_title: document.getElementById('cms-events_page_title').value, gallery_page_title: document.getElementById('cms-gallery_page_title').value, winners_page_title: document.getElementById('cms-winners_page_title').value, }; try { await setDoc(doc(db, "site_content", "live_data"), d); showMessage('Website content saved successfully!', 'success'); } catch (error) { console.error("Error saving CMS data: ", error); showMessage('Failed to save content.', 'error'); } finally { s.disabled = false; s.textContent = 'Save Website Content'; } });
+        
+        document.getElementById('add-winner-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button');
+            submitBtn.textContent = 'Uploading...';
+            submitBtn.disabled = true;
+            const photoFile = document.getElementById('winner-photo').files[0];
+            if (!photoFile) { alert("Please select a photo."); submitBtn.disabled = false; submitBtn.textContent = 'Add Winner'; return; }
+            const imageUrl = await uploadImageToCloudinary(photoFile);
+
+            if (imageUrl) {
+                await addDoc(collection(db, "winners"), {
+                    name: document.getElementById('winner-name').value,
+                    prize: document.getElementById('winner-prize').value,
+                    testimonial: document.getElementById('winner-testimonial').value,
+                    imageUrl: imageUrl,
+                    createdAt: serverTimestamp()
+                });
+                showMessage('Winner added successfully!', 'success');
+                e.target.reset();
+            }
+            submitBtn.textContent = 'Add Winner';
+            submitBtn.disabled = false;
+        });
+
+        document.getElementById('add-gallery-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button');
+            submitBtn.textContent = 'Uploading...';
+            submitBtn.disabled = true;
+            const imageFile = document.getElementById('gallery-image').files[0];
+            if (!imageFile) { alert("Please select an image."); submitBtn.disabled = false; submitBtn.textContent = 'Upload to Gallery'; return; }
+            const imageUrl = await uploadImageToCloudinary(imageFile);
+
+            if (imageUrl) {
+                await addDoc(collection(db, "gallery"), {
+                    description: document.getElementById('gallery-description').value,
+                    imageUrl: imageUrl,
+                    createdAt: serverTimestamp()
+                });
+                showMessage('Image uploaded to gallery!', 'success');
+                e.target.reset();
+            }
+            submitBtn.textContent = 'Upload to Gallery';
+            submitBtn.disabled = false;
+        });
+
+        document.getElementById('cms-form').addEventListener('submit', async (e) => { 
+            e.preventDefault(); 
+            const s = e.target.querySelector('button'); s.disabled = true; s.textContent = 'Saving...'; 
+            
+            const aboutContent = tinymce.get('cms-about_page_content') ? tinymce.get('cms-about_page_content').getContent() : '';
+            const contactSubtitle = tinymce.get('cms-contact_page_subtitle') ? tinymce.get('cms-contact_page_subtitle').getContent() : '';
+            const homeSubtitle = tinymce.get('cms-home_hero_subtitle') ? tinymce.get('cms-home_hero_subtitle').getContent() : '';
+
+            const d = { 
+                home_hero_title: document.getElementById('cms-home_hero_title').value, 
+                home_hero_subtitle: homeSubtitle, 
+                home_howitworks_title: document.getElementById('cms-home_howitworks_title').value,
+                home_meta_title: document.getElementById('cms-home_meta_title').value,
+                home_meta_desc: document.getElementById('cms-home_meta_desc').value,
+                events_page_title: document.getElementById('cms-events_page_title').value, 
+                gallery_page_title: document.getElementById('cms-gallery_page_title').value, 
+                winners_page_title: document.getElementById('cms-winners_page_title').value, 
+                about_page_title: document.getElementById('cms-about_page_title').value, 
+                about_page_content: aboutContent, 
+                contact_page_title: document.getElementById('cms-contact_page_title').value, 
+                contact_page_subtitle: contactSubtitle,
+            }; 
+            try { 
+                await setDoc(doc(db, "site_content", "live_data"), d); 
+                showMessage('Website content saved successfully!', 'success'); 
+            } catch (error) { 
+                console.error("Error saving CMS data: ", error); 
+                showMessage('Failed to save content.', 'error'); 
+            } finally { 
+                s.disabled = false; s.textContent = 'Save Website Content'; 
+            } 
+        });
+
+        document.getElementById('add-page-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const s = e.target.querySelector('button'); s.disabled = true; s.textContent = 'Saving...';
+            const title = document.getElementById('page-title').value;
+            const slug = document.getElementById('page-slug').value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const content = tinymce.get('page-content') ? tinymce.get('page-content').getContent() : '';
+            const isActive = document.getElementById('page-is-active').checked;
+
+            if (!title || !slug || !content) {
+                alert("Please fill in all fields.");
+                s.disabled = false; s.textContent = 'Save Page';
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, "custom_pages"), {
+                    title: title,
+                    slug: slug,
+                    content: content,
+                    isActive: isActive,
+                    createdAt: serverTimestamp()
+                });
+                showMessage('Custom page saved successfully!', 'success');
+                e.target.reset();
+                tinymce.get('page-content').setContent('');
+            } catch (error) {
+                console.error("Error saving custom page: ", error);
+                showMessage('Failed to save custom page.', 'error');
+            } finally {
+                s.disabled = false; s.textContent = 'Save Page';
+            }
+        });
+
+        document.getElementById('edit-page-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const s = e.target.querySelector('button'); s.disabled = true; s.textContent = 'Saving...';
+            const id = document.getElementById('edit-page-id').value;
+            const title = document.getElementById('edit-page-title').value;
+            const slug = document.getElementById('edit-page-slug').value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const content = tinymce.get('edit-page-content') ? tinymce.get('edit-page-content').getContent() : '';
+            const isActive = document.getElementById('edit-page-is-active').checked;
+            
+            try {
+                await updateDoc(doc(db, "custom_pages", id), {
+                    title: title,
+                    slug: slug,
+                    content: content,
+                    isActive: isActive
+                });
+                showMessage('Custom page updated successfully!', 'success');
+                document.getElementById('edit-page-modal').style.display = 'none';
+                tinymce.remove('#edit-page-content');
+            } catch (error) {
+                console.error("Error updating custom page: ", error);
+                showMessage('Failed to update custom page.', 'error');
+            } finally {
+                s.disabled = false; s.textContent = 'Save Changes';
+            }
+        });
 
         agentSearchInput.addEventListener('input', renderAgentPerformance);
         participantSearchInput.addEventListener('input', renderAllParticipants);
         participantsModalSearch.addEventListener('input', renderParticipantsInModal);
-        
-        function revealElements() {
-            const reveals = document.querySelectorAll('.reveal');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, { threshold: 0.1 });
-            reveals.forEach((el, index) => {
-                el.style.transitionDelay = `${index * 100}ms`;
-                observer.observe(el);
-            });
-        }
         
         if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
             loginView.style.display = 'none';
