@@ -43,6 +43,7 @@
             padding: 0.5rem 1rem;
             border-radius: 9999px;
             transition: all 0.2s ease-in-out;
+            font-size: 0.875rem;
         }
         .footer-link:hover {
             background-color: rgba(255, 255, 255, 0.2);
@@ -54,11 +55,14 @@
     <header class="bg-gray-900/70 backdrop-blur-md shadow-lg sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="text-2xl font-bold text-white tracking-wider">Win<span class="text-violet-400">Big</span></div>
-            <div class="hidden md:flex items-center space-x-8">
+            <div id="desktop-nav-links" class="hidden md:flex items-center space-x-8">
                 <a href="./index.html" class="text-violet-400 font-semibold">Home</a>
                 <a href="./events.html" class="text-gray-300 hover:text-violet-400 transition-colors">Events</a>
                 <a href="./gallery.html" class="text-gray-300 hover:text-violet-400 transition-colors">Gallery</a>
                 <a href="./past-winners.html" class="text-gray-300 hover:text-violet-400 transition-colors">Past Winners</a>
+                <a href="./about.html" class="text-gray-300 hover:text-violet-400 transition-colors">About Us</a>
+                <a href="./contact.html" class="text-gray-300 hover:text-violet-400 transition-colors">Contact</a>
+                <!-- Custom links will be injected here -->
             </div>
             <div class="md:hidden">
                 <button id="mobile-menu-btn" class="text-white p-2 rounded-md hover:bg-gray-800">
@@ -67,11 +71,14 @@
             </div>
         </nav>
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-gray-900/90 backdrop-blur-md">
+        <div id="mobile-nav-links" class="hidden md:hidden bg-gray-900/90 backdrop-blur-md">
             <a href="./index.html" class="block py-2 px-6 text-violet-400 font-semibold">Home</a>
             <a href="./events.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Events</a>
             <a href="./gallery.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Gallery</a>
             <a href="./past-winners.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Past Winners</a>
+            <a href="./about.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">About Us</a>
+            <a href="./contact.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Contact</a>
+            <!-- Custom links will be injected here -->
         </div>
     </header>
 
@@ -79,7 +86,7 @@
         <section class="hero-gradient text-white py-24 sm:py-40">
             <div class="container mx-auto px-6 text-center">
                 <h1 id="cms-home_hero_title" class="text-4xl md:text-7xl font-extrabold mb-4 tracking-tight">The Future of Winning is Here</h1>
-                <p id="cms-home_hero_subtitle" class="text-lg md:text-xl mb-10 max-w-3xl mx-auto text-gray-200">Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.</p>
+                <div id="cms-home_hero_subtitle" class="text-lg md:text-xl mb-10 max-w-3xl mx-auto text-gray-200">Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.</div>
                 <a href="#request-ticket" class="bg-white text-gray-900 font-bold py-4 px-12 rounded-full text-lg cta-button inline-block">Request Your Ticket</a>
             </div>
         </section>
@@ -193,15 +200,18 @@
         const requestForm = document.getElementById('request-ticket-form');
         const requestMessage = document.getElementById('request-message');
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenu = document.getElementById('mobile-nav-links');
+        const desktopMenu = document.getElementById('desktop-nav-links');
 
         // Fetch CMS Content
         const contentRef = doc(db, "site_content", "live_data");
         onSnapshot(contentRef, (doc) => {
             if (doc.exists()) {
                 const content = doc.data();
+                document.title = content.home_meta_title || 'WinBig - The Future of Winning';
+                document.querySelector('meta[name="description"]').setAttribute('content', content.home_meta_desc || 'Participate in our exciting lottery events!');
                 document.getElementById('cms-home_hero_title').textContent = content.home_hero_title || 'The Future of Winning is Here';
-                document.getElementById('cms-home_hero_subtitle').textContent = content.home_hero_subtitle || 'Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.';
+                document.getElementById('cms-home_hero_subtitle').innerHTML = content.home_hero_subtitle || 'Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.';
                 document.getElementById('cms-home_howitworks_title').textContent = content.home_howitworks_title || 'A New Way to Win';
             }
         });
@@ -225,7 +235,8 @@
                     <img src="${lottery.imageUrl || 'https://placehold.co/600x400/1e1b4b/312e81?text=Prize'}" alt="${lottery.prizeName}" class="w-full h-48 object-cover rounded-t-xl">
                     <div class="p-6">
                         <h3 class="text-xl font-bold mb-2 text-white">${lottery.prizeName}</h3>
-                        <p class="text-violet-400 font-bold text-lg mb-2">₹${lottery.ticketPrice.toLocaleString()}</p>
+                        <p class="text-gray-400 text-sm line-through">MRP: ₹${(lottery.originalPrice || 0).toLocaleString()}</p>
+                        <p class="text-violet-400 font-bold text-2xl mb-2">₹${(lottery.offerPrice || 0).toLocaleString()}</p>
                         <p class="text-gray-400 text-sm">Draw Date: ${new Date(lottery.drawDate).toLocaleDateString()}</p>
                     </div>
                 `;
@@ -242,7 +253,7 @@
                  const lottery = doc.data();
                  const option = document.createElement('option');
                  option.value = lottery.prizeName;
-                 option.textContent = `${lottery.prizeName} (₹${lottery.ticketPrice})`;
+                 option.textContent = `${lottery.prizeName} (₹${(lottery.offerPrice || 0).toLocaleString()})`;
                  requestLotterySelect.appendChild(option);
             });
         });
@@ -320,6 +331,34 @@
 
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+        });
+        
+        function renderCustomNavLinks(pages) {
+            // Clear existing custom links
+            desktopMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
+            mobileMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
+
+            pages.forEach(page => {
+                // Add to desktop
+                const desktopLink = document.createElement('a');
+                desktopLink.href = `./page.html?slug=${page.slug}`;
+                desktopLink.textContent = page.title;
+                desktopLink.className = 'text-gray-300 hover:text-violet-400 transition-colors custom-nav-link';
+                desktopMenu.appendChild(desktopLink);
+
+                // Add to mobile
+                const mobileLink = document.createElement('a');
+                mobileLink.href = `./page.html?slug=${page.slug}`;
+                mobileLink.textContent = page.title;
+                mobileLink.className = 'block py-2 px-6 text-gray-300 hover:bg-gray-800 custom-nav-link';
+                mobileMenu.appendChild(mobileLink);
+            });
+        }
+        
+        const pagesQuery = query(collection(db, "custom_pages"), where("isActive", "==", true), orderBy("createdAt"));
+        onSnapshot(pagesQuery, (snapshot) => {
+            const pages = snapshot.docs.map(doc => doc.data());
+            renderCustomNavLinks(pages);
         });
     </script>
 </body>
