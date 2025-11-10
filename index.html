@@ -49,7 +49,6 @@
             box-shadow: 0 0 0 1px #4f46e5;
             outline: none;
         }
-        /* This rule handles the animation */
         .form-input:focus + .form-label, 
         .form-input:not(:placeholder-shown) + .form-label,
         select.form-input:not([value=""]) + .form-label {
@@ -62,6 +61,24 @@
         }
         select.form-input:not([value=""]) {
             color: #1e293b;
+        }
+        
+        /* Banner Slider Styles */
+        .slider-button {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        .slider-button:hover {
+            background-color: white;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -103,6 +120,26 @@
                 <h1 id="cms-home_hero_title" class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">The Future of Winning is Here</h1>
                 <div id="cms-home_hero_subtitle" class="text-lg md:text-xl mb-10 max-w-3xl mx-auto text-indigo-100">Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.</div>
                 <a href="#request-ticket" class="bg-white text-indigo-600 font-bold py-3 px-10 rounded-full text-lg cta-button inline-block">Request Your Ticket</a>
+            </div>
+        </section>
+
+        <!-- Banner Slider Section -->
+        <section class="py-12 bg-slate-100">
+            <div class="container mx-auto px-6">
+                <div id="banner-slider" class="relative w-full max-w-5xl mx-auto rounded-xl shadow-lg overflow-hidden" style="display: none;">
+                    <div id="slider-track" class="flex transition-transform duration-500 ease-in-out">
+                        <!-- Slides will be injected here by JS -->
+                    </div>
+                    <button id="prev-btn" class="slider-button absolute top-1/2 left-4 -translate-y-1/2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <button id="next-btn" class="slider-button absolute top-1/2 right-4 -translate-y-1/2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    <div id="slider-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                        <!-- Dots will be injected here by JS -->
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -217,6 +254,14 @@
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-nav-links');
         const desktopMenu = document.getElementById('desktop-nav-links');
+        
+        const bannerSlider = document.getElementById('banner-slider');
+        const bannerTrack = document.getElementById('slider-track');
+        const dotsContainer = document.getElementById('slider-dots');
+        let allBanners = [];
+        let currentSlide = 0;
+        let slideInterval;
+        const slideDuration = 5000;
 
         // Fetch CMS Content
         const contentRef = doc(db, "site_content", "live_data");
@@ -231,6 +276,97 @@
                 document.getElementById('cms-home_howitworks_title').textContent = content.home_howitworks_title || 'A New Way to Win';
             }
         });
+        
+        // Fetch Banners
+        const bannerQuery = query(collection(db, "custom_banners"), orderBy("createdAt", "desc"));
+        onSnapshot(bannerQuery, (snapshot) => {
+            bannerTrack.innerHTML = '';
+            dotsContainer.innerHTML = '';
+            allBanners = snapshot.docs.map(doc => doc.data());
+            
+            if (allBanners.length === 0) {
+                bannerSlider.style.display = 'none';
+                return;
+            }
+            
+            bannerSlider.style.display = 'block';
+
+            allBanners.forEach((banner, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'flex-shrink-0 w-full';
+                slide.style.minWidth = '100%';
+                slide.innerHTML = `
+                    <a href="${banner.linkUrl || '#'}" target="_blank" rel="noopener noreferrer">
+                        <img src="${banner.imageUrl}" alt="Banner ${index + 1}" class="w-full h-auto md:h-72 object-cover">
+                    </a>
+                `;
+                bannerTrack.appendChild(slide);
+
+                const dot = document.createElement('button');
+                dot.className = 'w-2 h-2 rounded-full bg-white/50 transition-all duration-300';
+                dot.dataset.index = index;
+                dotsContainer.appendChild(dot);
+            });
+            initSlider();
+        });
+
+        function updateSlider(index) {
+            if (allBanners.length === 0) return;
+            if (index >= allBanners.length) index = 0;
+            if (index < 0) index = allBanners.length - 1;
+            
+            currentSlide = index;
+            
+            bannerTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            const dots = document.querySelectorAll('#slider-dots button');
+            dots.forEach((dot, i) => {
+                if (i === currentSlide) {
+                    dot.classList.add('bg-white', 'scale-125');
+                    dot.classList.remove('bg-white/50');
+                } else {
+                    dot.classList.remove('bg-white', 'scale-125');
+                    dot.classList.add('bg-white/50');
+                }
+            });
+        }
+
+        function initSlider() {
+            if(allBanners.length <= 1) {
+                document.getElementById('prev-btn').style.display = 'none';
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('slider-dots').style.display = 'none';
+            } else {
+                 document.getElementById('prev-btn').style.display = 'flex';
+                document.getElementById('next-btn').style.display = 'flex';
+                document.getElementById('slider-dots').style.display = 'flex';
+            }
+
+            updateSlider(0);
+            
+            if (slideInterval) clearInterval(slideInterval);
+            slideInterval = setInterval(() => {
+                updateSlider(currentSlide + 1);
+            }, slideDuration);
+
+            document.getElementById('prev-btn').onclick = () => {
+                updateSlider(currentSlide - 1);
+                clearInterval(slideInterval); // Optional: reset interval on manual click
+            };
+
+            document.getElementById('next-btn').onclick = () => {
+                updateSlider(currentSlide + 1);
+                clearInterval(slideInterval);
+            };
+            
+            document.getElementById('slider-dots').onclick = (e) => {
+                if(e.target.dataset.index) {
+                    updateSlider(Number(e.target.dataset.index));
+                    clearInterval(slideInterval);
+                }
+            };
+        }
+
 
         // Fetch Recent Lotteries (limit 3 for homepage)
         const lotteriesQuery = query(collection(db, "lotteries"), where("isActive", "==", true), limit(3));
