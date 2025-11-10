@@ -196,6 +196,23 @@
                     </div>
                 </div>
             </div>
+
+            <div class="container">
+                <div class="grid-container">
+                    <div>
+                        <h3>Upload New Banner</h3>
+                        <form id="add-banner-form" class="space-y-6 mt-4">
+                            <div class="form-group"><input type="text" id="banner-link" class="form-input" placeholder=" "><label class="form-label">Link (Optional)</label></div>
+                            <input type="file" id="banner-image" accept="image/*" required>
+                            <button type="submit" class="btn-primary">Upload Banner</button>
+                        </form>
+                    </div>
+                    <div>
+                        <h3>Manage Banners</h3>
+                        <div id="manage-banners-list"><div class="loader"></div></div>
+                    </div>
+                </div>
+            </div>
             
             <div class="container">
                 <div class="section-header">
@@ -371,6 +388,7 @@
         let allAdjustments = [];
         let allWinners = [];
         let allCustomPages = new Map();
+        let allBanners = new Map();
         let agentPerformanceData = {};
         let lotteryPerformanceData = {};
         let currentLotteryParticipants = [];
@@ -404,6 +422,7 @@
                 adjustments: (data) => allAdjustments = data,
                 winners: (data) => allWinners = data,
                 custom_pages: (data) => allCustomPages = new Map(data.map(item => [item.id, item])),
+                custom_banners: (data) => allBanners = new Map(data.map(item => [item.id, item])),
             };
             Object.entries(collectionsToWatch).forEach(([name, setter]) => {
                 const unsub = onSnapshot(collection(db, name), (snapshot) => {
@@ -425,6 +444,7 @@
         
         function rerenderDashboard() {
             calculatePerformance();
+            renderManageBanners();
             renderManageLotteries();
             renderManageAgents();
             renderAgentPerformance();
@@ -460,6 +480,26 @@
                         lotteryPerf.totalRevenue += price;
                     }
                 }
+            });
+        }
+        
+        function renderManageBanners() {
+            const list = document.getElementById('manage-banners-list');
+            list.innerHTML = `<table><thead><tr><th>Image</th><th>Link</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
+            const tbody = list.querySelector('tbody');
+            if (allBanners.size === 0) {
+                list.innerHTML = `<p style="text-align:center; color: var(--text-light);">No banners uploaded yet.</p>`;
+                return;
+            }
+            allBanners.forEach(banner => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="${banner.imageUrl}" alt="Banner" class="w-32 h-16 object-cover rounded-lg"></td>
+                    <td class="whitespace-normal">${banner.linkUrl || 'N/A'}</td>
+                    <td>
+                        <button class="btn-sm btn-danger delete-banner-btn" data-id="${banner.id}">Delete</button>
+                    </td>`;
+                tbody.appendChild(row);
             });
         }
 
@@ -1105,4 +1145,3 @@
     </script>
 </body>
 </html>
-
