@@ -3,153 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WinBig - The Future of Winning</title>
+    <title>WinBig - Your Chance to Win Big!</title>
     <meta name="description" content="Participate in our exciting lottery events!">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #0d0c22; color: #d1d5db; overflow-x: hidden; }
-        .hero-gradient { background: linear-gradient(-45deg, #4338ca, #6d28d9, #be185d, #db2777); background-size: 400% 400%; animation: gradient 15s ease infinite; }
-        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .cta-button { transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
-        .cta-button:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 30px rgba(255, 255, 255, 0.4); }
-        .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 0 30px rgba(162, 89, 255, 0.3); }
-        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
-        select option { background-color: #1e1b4b; }
-        .loader { border: 4px solid #374151; border-top: 4px solid #a78bfa; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; antialiased: true; }
+        .hero-gradient { background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%); }
+        .cta-button { transition: transform 0.2s, box-shadow 0.2s; }
+        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -10px rgba(79, 70, 229, 0.5); }
+        .card { transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px -15px rgba(0,0,0,0.1); }
+        .loader { border: 4px solid #e2e8f0; border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .message { display:none; padding: 1rem; text-align: center; border-radius: 8px; margin-bottom: 1.5rem;}
-        .success { background-color: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid #10b981; }
-        .error { background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
-        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s, transform 0.8s; transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .success { background-color: #dcfce7; color: #166534; }
+        .error { background-color: #fee2e2; color: #991b1b; }
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
-        .form-group { position: relative; }
-        .form-input { 
-            padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); width: 100%; box-sizing: border-box; 
-            font-size: 1rem; font-family: 'Poppins', sans-serif; background-color: rgba(255,255,255,0.05); color: white;
-        }
-        .form-label {
-            position: absolute; left: 0.85rem; top: 0.85rem; color: #9ca3af;
-            pointer-events: none; transition: all 0.2s ease;
-        }
-        .form-input:focus + .form-label, .form-input:not(:placeholder-shown) + .form-label {
-            top: -0.6rem; left: 0.5rem; font-size: 0.75rem; color: #c4b5fd;
-            background-color: #1e1b4b; padding: 0 0.25rem;
-        }
         .footer-link {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
+            color: #64748b;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
             transition: all 0.2s ease-in-out;
-            font-size: 0.875rem;
         }
         .footer-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
+            background-color: #f1f5f9;
+            color: #4f46e5;
+        }
+        /* Floating Label Styles */
+        .form-group { position: relative; }
+        .form-input { 
+            padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e1; /* border-gray-300 */
+            width: 100%; box-sizing: border-box; 
+            font-size: 1rem; font-family: 'Inter', sans-serif; background-color: white;
+        }
+        .form-label {
+            position: absolute; left: 0.75rem; top: 0.75rem; color: #64748b; /* text-gray-500 */
+            pointer-events: none; transition: all 0.2s ease;
+        }
+        .form-input:focus {
+            border-color: #4f46e5; /* indigo-600 */
+            box-shadow: 0 0 0 1px #4f46e5;
+            outline: none;
+        }
+        /* This rule handles the animation */
+        .form-input:focus + .form-label, 
+        .form-input:not(:placeholder-shown) + .form-label,
+        select.form-input:not([value=""]) + .form-label {
+            top: -0.6rem; left: 0.5rem; font-size: 0.75rem; color: #4f46e5; /* indigo-600 */
+            background-color: white; padding: 0 0.25rem;
+        }
+        /* Fix for select placeholder color */
+        select.form-input {
+            color: #64748b;
+        }
+        select.form-input:not([value=""]) {
+            color: #1e293b;
         }
     </style>
 </head>
-<body class="bg-gray-900 antialiased">
-    <header class="bg-gray-900/70 backdrop-blur-md shadow-lg sticky top-0 z-50">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="text-2xl font-bold text-white tracking-wider">Win<span class="text-violet-400">Big</span></div>
-            <div id="desktop-nav-links" class="hidden md:flex items-center space-x-8">
-                <a href="./index.html" class="text-violet-400 font-semibold">Home</a>
-                <a href="./events.html" class="text-gray-300 hover:text-violet-400 transition-colors">Events</a>
-                <a href="./gallery.html" class="text-gray-300 hover:text-violet-400 transition-colors">Gallery</a>
-                <a href="./past-winners.html" class="text-gray-300 hover:text-violet-400 transition-colors">Past Winners</a>
-                <a href="./about.html" class="text-gray-300 hover:text-violet-400 transition-colors">About Us</a>
-                <a href="./contact.html" class="text-gray-300 hover:text-violet-400 transition-colors">Contact</a>
+<body class="bg-slate-50">
+
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="text-3xl font-bold text-indigo-600">WinBig</div>
+            <div id="desktop-nav-links" class="hidden md:flex items-center space-x-6">
+                <a href="./index.html" class="text-indigo-600 font-semibold">Home</a>
+                <a href="./events.html" class="text-gray-500 hover:text-indigo-600 transition-colors">Events</a>
+                <a href="./gallery.html" class="text-gray-500 hover:text-indigo-600 transition-colors">Gallery</a>
+                <a href="./past-winners.html" class="text-gray-500 hover:text-indigo-600 transition-colors">Past Winners</a>
+                <a href="./about.html" class="text-gray-500 hover:text-indigo-600 transition-colors">About Us</a>
+                <a href="./contact.html" class="text-gray-500 hover:text-indigo-600 transition-colors">Contact</a>
                 <!-- Custom links will be injected here -->
             </div>
             <div class="md:hidden">
-                <button id="mobile-menu-btn" class="text-white p-2 rounded-md hover:bg-gray-800">
+                <button id="mobile-menu-btn" class="text-gray-700 p-2 rounded-md hover:bg-gray-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
             </div>
         </nav>
         <!-- Mobile Menu -->
-        <div id="mobile-nav-links" class="hidden md:hidden bg-gray-900/90 backdrop-blur-md">
-            <a href="./index.html" class="block py-2 px-6 text-violet-400 font-semibold">Home</a>
-            <a href="./events.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Events</a>
-            <a href="./gallery.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Gallery</a>
-            <a href="./past-winners.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Past Winners</a>
-            <a href="./about.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">About Us</a>
-            <a href="./contact.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-800">Contact</a>
+        <div id="mobile-nav-links" class="hidden md:hidden bg-white shadow-lg border-t border-gray-200">
+            <a href="./index.html" class="block py-3 px-6 text-indigo-600 font-semibold">Home</a>
+            <a href="./events.html" class="block py-3 px-6 text-gray-500 hover:bg-gray-50">Events</a>
+            <a href="./gallery.html" class="block py-3 px-6 text-gray-500 hover:bg-gray-50">Gallery</a>
+            <a href="./past-winners.html" class="block py-3 px-6 text-gray-500 hover:bg-gray-50">Past Winners</a>
+            <a href="./about.html" class="block py-3 px-6 text-gray-500 hover:bg-gray-50">About Us</a>
+            <a href="./contact.html" class="block py-3 px-6 text-gray-500 hover:bg-gray-50">Contact</a>
             <!-- Custom links will be injected here -->
         </div>
     </header>
 
     <main>
-        <section class="hero-gradient text-white py-24 sm:py-40">
+        <section class="hero-gradient text-white py-24 sm:py-32">
             <div class="container mx-auto px-6 text-center">
-                <h1 id="cms-home_hero_title" class="text-4xl md:text-7xl font-extrabold mb-4 tracking-tight">The Future of Winning is Here</h1>
-                <div id="cms-home_hero_subtitle" class="text-lg md:text-xl mb-10 max-w-3xl mx-auto text-gray-200">Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.</div>
-                <a href="#request-ticket" class="bg-white text-gray-900 font-bold py-4 px-12 rounded-full text-lg cta-button inline-block">Request Your Ticket</a>
+                <h1 id="cms-home_hero_title" class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">The Future of Winning is Here</h1>
+                <div id="cms-home_hero_subtitle" class="text-lg md:text-xl mb-10 max-w-3xl mx-auto text-indigo-100">Enter exclusive draws for amazing prizes. Low entry, high rewards. Your chance is now.</div>
+                <a href="#request-ticket" class="bg-white text-indigo-600 font-bold py-3 px-10 rounded-full text-lg cta-button inline-block">Request Your Ticket</a>
             </div>
         </section>
 
         <section class="py-20">
             <div class="container mx-auto px-6 text-center">
-                <h2 id="cms-home_howitworks_title" class="text-3xl md:text-4xl font-bold text-white mb-16 reveal">A New Way to Win</h2>
+                <h2 id="cms-home_howitworks_title" class="text-3xl md:text-4xl font-bold text-gray-800 mb-16 reveal">A New Way to Win</h2>
                 <div class="grid md:grid-cols-3 gap-10">
-                    <div class="p-8 rounded-2xl card reveal">
-                        <div class="bg-gray-800 text-violet-400 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-6 border border-gray-700">
+                    <div class="bg-white p-8 rounded-xl shadow-lg card reveal">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-6">
                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
                         </div>
-                        <h3 class="text-xl font-bold mb-2 text-white">1. Request Ticket</h3>
-                        <p class="text-gray-400">Fill a simple form to notify our agents of your interest.</p>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">1. Request Ticket</h3>
+                        <p class="text-gray-600">Fill out a simple form to let our agents know you're interested in a prize.</p>
                     </div>
-                    <div class="p-8 rounded-2xl card reveal" style="transition-delay: 150ms;">
-                        <div class="bg-gray-800 text-violet-400 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-6 border border-gray-700">
+                    <div class="bg-white p-8 rounded-xl shadow-lg card reveal" style="transition-delay: 150ms;">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-6">
                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"><circle cx="12" cy="12" r="8"></circle><line x1="3" y1="3" x2="21" y2="21"></line></svg>
                         </div>
-                        <h3 class="text-xl font-bold mb-2 text-white">2. Pay Offline</h3>
-                        <p class="text-gray-400">Our certified agent will contact you to collect the entry fee securely.</p>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">2. Pay Offline</h3>
+                        <p class="text-gray-600">Our certified agent will contact you to confirm details and collect the entry fee.</p>
                     </div>
-                    <div class="p-8 rounded-2xl card reveal" style="transition-delay: 300ms;">
-                         <div class="bg-gray-800 text-violet-400 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-6 border border-gray-700">
+                    <div class="bg-white p-8 rounded-xl shadow-lg card reveal" style="transition-delay: 300ms;">
+                         <div class="bg-indigo-100 text-indigo-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-6">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"><path d="M15.5 6.5l-1.06-1.06a.95.95 0 0 0-1.34 0L9.5 8.5 7 11l6 6 2.5-2.5.06-.06a.95.95 0 0 0 0-1.34L15.5 6.5z"></path><path d="M11 19.5L7 15l-5 5"></path><path d="M22 2l-5 5"></path></svg>
                         </div>
-                        <h3 class="text-xl font-bold mb-2 text-white">3. Get Your Ticket</h3>
-                        <p class="text-gray-400">Receive your unique serial number and wait for the draw!</p>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">3. You Could Win!</h3>
+                        <p class="text-gray-600">You'll receive your unique ticket number. Winners are announced on the draw date!</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="py-20 bg-black/20">
+        <section class="py-20 bg-slate-100">
             <div class="container mx-auto px-6">
-                <h2 class="text-3xl md:text-4xl font-bold text-white text-center mb-12 reveal">Live Events</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12 reveal">Live Events</h2>
                 <div id="lottery-list" class="flex flex-wrap justify-center gap-10">
                     <div class="loader col-span-full"></div>
                 </div>
                  <div class="text-center mt-12 reveal">
-                    <a href="./events.html" class="text-violet-400 font-bold hover:underline">View All Events →</a>
+                    <a href="./events.html" class="text-indigo-600 font-bold hover:underline">View All Events →</a>
                 </div>
             </div>
         </section>
         
         <section class="py-20">
             <div class="container mx-auto px-6">
-                <h2 class="text-3xl md:text-4xl font-bold text-white text-center mb-12 reveal">Our Recent Winners</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12 reveal">Our Recent Winners</h2>
                 <div id="recent-winners-list" class="flex flex-wrap justify-center gap-10">
                     <div class="loader col-span-full"></div>
                 </div>
                  <div class="text-center mt-12 reveal">
-                    <a href="./past-winners.html" class="text-violet-400 font-bold hover:underline">See All Winners →</a>
+                    <a href="./past-winners.html" class="text-indigo-600 font-bold hover:underline">See All Winners →</a>
                 </div>
             </div>
         </section>
 
-        <section id="request-ticket" class="py-20">
+        <section id="request-ticket" class="py-20 bg-slate-100">
              <div class="container mx-auto px-6 max-w-2xl">
-                <h2 class="text-3xl md:text-4xl font-bold text-white text-center mb-12 reveal">Don't Miss Out</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12 reveal">Don't Miss Out</h2>
                 <div id="request-message" class="message"></div>
-                <form id="request-ticket-form" class="p-8 rounded-2xl space-y-8 reveal card">
+                <form id="request-ticket-form" class="bg-white p-8 rounded-xl shadow-lg space-y-8 reveal">
                     <div class="form-group">
                         <input type="text" id="request-name" class="form-input" placeholder=" " required />
                         <label for="request-name" class="form-label">Full Name</label>
@@ -159,7 +173,7 @@
                         <label for="request-phone" class="form-label">Phone Number</label>
                     </div>
                     <div class="form-group">
-                        <select id="request-lottery-select" class="form-input" required>
+                        <select id="request-lottery-select" class="form-input" required value="">
                             <option value="" disabled selected></option>
                         </select>
                          <label for="request-lottery-select" class="form-label">Which prize are you interested in?</label>
@@ -170,7 +184,7 @@
         </section>
     </main>
 
-    <footer class="mt-16 border-t border-gray-800">
+    <footer class="mt-16 bg-white border-t border-gray-200">
         <div class="container mx-auto px-6 py-8 text-center text-gray-500">
              <div class="flex justify-center space-x-4 mb-6">
                 <a href="./admin.html" target="_blank" class="footer-link">Admin Login</a>
@@ -225,21 +239,21 @@
             const lotteries = snapshot.docs.map(doc => doc.data());
             
             if(lotteries.length === 0) {
-                 lotteryListDiv.innerHTML = '<p class="w-full text-center text-gray-400">No active lotteries at the moment. Check back soon!</p>';
+                 lotteryListDiv.innerHTML = '<p class="w-full text-center text-gray-500">No active lotteries at the moment. Check back soon!</p>';
                  return;
             }
 
             lotteries.forEach((lottery, index) => {
                 const card = document.createElement('div');
-                card.className = 'rounded-xl card reveal w-full max-w-sm';
+                card.className = 'bg-white rounded-xl shadow-lg card reveal w-full max-w-sm overflow-hidden';
                 card.style.transitionDelay = `${index * 150}ms`;
                 card.innerHTML = `
-                    <img src="${lottery.imageUrl || 'https://placehold.co/600x400/1e1b4b/312e81?text=Prize'}" alt="${lottery.prizeName}" class="w-full h-48 object-cover rounded-t-xl">
+                    <img src="${lottery.imageUrl || 'https://placehold.co/600x400/e2e8f0/64748b?text=Prize'}" alt="${lottery.prizeName}" class="w-full h-48 object-cover">
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2 text-white">${lottery.prizeName}</h3>
-                        <p class="text-gray-400 text-sm line-through">MRP: ₹${(lottery.originalPrice || 0).toLocaleString()}</p>
-                        <p class="text-violet-400 font-bold text-2xl mb-2">₹${(lottery.offerPrice || 0).toLocaleString()}</p>
-                        <p class="text-gray-400 text-sm">Draw Date: ${new Date(lottery.drawDate).toLocaleDateString()}</p>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">${lottery.prizeName}</h3>
+                        <p class="text-gray-500 text-sm line-through">MRP: ₹${(lottery.originalPrice || 0).toLocaleString()}</p>
+                        <p class="text-indigo-600 font-bold text-2xl mb-2">₹${(lottery.offerPrice || 0).toLocaleString()}</p>
+                        <p class="text-gray-500 text-sm">Draw Date: ${new Date(lottery.drawDate).toLocaleDateString()}</p>
                     </div>
                 `;
                 lotteryListDiv.appendChild(card);
@@ -265,19 +279,19 @@
         onSnapshot(winnersQuery, (snapshot) => {
             recentWinnersListDiv.innerHTML = '';
             if (snapshot.empty) {
-                recentWinnersListDiv.innerHTML = '<p class="w-full text-center text-gray-400">Our first winner could be you!</p>';
+                recentWinnersListDiv.innerHTML = '<p class="w-full text-center text-gray-500">Our first winner could be you!</p>';
                 return;
             }
             snapshot.docs.forEach((doc, index) => {
                 const winner = doc.data();
                 const card = document.createElement('div');
-                card.className = 'p-6 text-center card reveal w-full max-w-sm';
+                card.className = 'p-6 text-center bg-white rounded-xl shadow-lg card reveal w-full max-w-sm';
                 card.style.transitionDelay = `${index * 150}ms`;
                 card.innerHTML = `
-                    <img src="${winner.imageUrl || 'https://placehold.co/100x100/312e81/4c1d95?text=Photo'}" alt="${winner.name}" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-violet-400/50">
-                    <h3 class="text-xl font-bold text-white">${winner.name}</h3>
-                    <p class="text-violet-400 font-semibold">Won a ${winner.prize}!</p>
-                    <p class="text-gray-400 text-sm mt-2">"${winner.testimonial}"</p>
+                    <img src="${winner.imageUrl || 'https://placehold.co/100x100/e2e8f0/64748b?text=Photo'}" alt="${winner.name}" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md">
+                    <h3 class="text-xl font-bold text-gray-900">${winner.name}</h3>
+                    <p class="text-indigo-600 font-semibold">Won a ${winner.prize}!</p>
+                    <p class="text-gray-500 text-sm mt-2">"${winner.testimonial}"</p>
                 `;
                 recentWinnersListDiv.appendChild(card);
             });
@@ -336,23 +350,18 @@
         });
         
         function renderCustomNavLinks(pages) {
-            // Clear existing custom links
             desktopMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
             mobileMenu.querySelectorAll('.custom-nav-link').forEach(link => link.remove());
-
             pages.forEach(page => {
-                // Add to desktop
                 const desktopLink = document.createElement('a');
                 desktopLink.href = `./page.html?slug=${page.slug}`;
                 desktopLink.textContent = page.title;
-                desktopLink.className = 'text-gray-300 hover:text-violet-400 transition-colors custom-nav-link';
+                desktopLink.className = 'text-gray-500 hover:text-indigo-600 transition-colors custom-nav-link';
                 desktopMenu.appendChild(desktopLink);
-
-                // Add to mobile
                 const mobileLink = document.createElement('a');
                 mobileLink.href = `./page.html?slug=${page.slug}`;
                 mobileLink.textContent = page.title;
-                mobileLink.className = 'block py-2 px-6 text-gray-300 hover:bg-gray-800 custom-nav-link';
+                mobileLink.className = 'block py-3 px-6 text-gray-500 hover:bg-gray-50 custom-nav-link';
                 mobileMenu.appendChild(mobileLink);
             });
         }
@@ -365,4 +374,3 @@
     </script>
 </body>
 </html>
-
